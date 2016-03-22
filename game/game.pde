@@ -10,7 +10,7 @@ void settings() {
 }
 void setup() {
   noStroke();
-  perspective(PI/4,((float) height)/width,0.1,1000);
+  perspective(PI/4,((float) width)/height,0.1,1000);
   mover = new Mover();
 }
 void draw() {
