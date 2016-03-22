@@ -5,7 +5,7 @@ class Mover {
   PVector velocity;
   
   Mover() {
-    location = new PVector(0,3.5,0);
+    location = new PVector(0,2.5,0);
     velocity = new PVector(0,0,0);
   }
   
