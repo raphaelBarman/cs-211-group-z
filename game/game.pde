@@ -21,8 +21,8 @@ void setup() {
   perspective(PI/4,((float) width)/height,0.1,1000);
   mover = new Mover();
   cylinders = new ArrayList();
-  cylinder =  new Cylinder(5,3);
-  cylinders.add(new PVector(0,0));
+  cylinder =  new Cylinder(16,5,3);
+  cylinders.add(new PVector(5,5));
   
 }
 void draw() {
