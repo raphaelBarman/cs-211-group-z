@@ -1,5 +1,3 @@
-
-
 ArrayList<PVector> cylinders;
 Cylinder cylinder;
 Mover mover;
