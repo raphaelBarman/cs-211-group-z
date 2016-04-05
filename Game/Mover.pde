@@ -15,7 +15,7 @@ class Mover {
     gravityForce.x = sin(angleZ) * (-1) * GRAVITYCONSTANT;
     gravityForce.z = sin(angleX) * GRAVITYCONSTANT;
     float normalForce = 1;
-    float mu = 2.5;
+    
     float frictionMagnitude = normalForce * mu;
     PVector friction = velocity.get();
     friction.mult(-1);
