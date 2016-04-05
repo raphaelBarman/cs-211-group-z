@@ -1,8 +1,5 @@
-float speed = 0.01;
-float posX = 0;
-float posZ = 0;
-float boxWidth = 50;
-float boxHeight = 50;
+
+
 ArrayList<PVector> cylinders;
 Cylinder cylinder;
 Mover mover;
@@ -18,17 +15,15 @@ void settings() {
 void setup() {
   mode = Mode.NORMAL;
   noStroke();
-  perspective(PI/4,((float) width)/height,0.1,1000);
+  perspective(fov,((float) width)/height,0.1,1000);
   mover = new Mover();
   cylinders = new ArrayList();
-  cylinder =  new Cylinder(16,5,3);
-  cylinders.add(new PVector(5,5));
-  
+  cylinder =  new Cylinder(16,cylinderH,cylinderR);
 }
 void draw() {
   switch(mode){
     case NORMAL:
-          camera(0, 40, 90, 0, 0, 0, 0, -1, 0);
+          camera(0, 40, -90, 0, 0, 0, 0, -1, 0);
           directionalLight(50, 100, 125, 0, -1, 0);
           ambientLight(102, 102, 102);
           background(200);
@@ -38,19 +33,19 @@ void draw() {
           rotateX(posX);
           rotateZ(posZ);
           box(boxWidth,1,boxHeight);
-                    //for(PVector vec : cylinders){
-            //pushMatrix();
-            //translate(vec.x,0,vec.y);
+          for(PVector vec : cylinders){
+            pushMatrix();
+            translate(vec.x,6/2,vec.z);
            cylinder.display();
-            //popMatrix();
-          //}
-          mover.checkEdges(boxWidth,boxHeight);
+            popMatrix();
+          }
+          mover.physics(cylinders);
           mover.update(posX,posZ);
           mover.display();
           popMatrix();
           break;
    case PUT:
-         camera(0, 75, 0, 0, 0, 0, 0, 0, 1);
+         camera(0, viewheight, 0, 0, 0, 0, 0, 0, -1);
          directionalLight(50, 100, 125, 0, -1, 0);
           ambientLight(102, 102, 102);
           background(200);
@@ -59,7 +54,7 @@ void draw() {
           pushMatrix();
            for(PVector vec : cylinders){
             pushMatrix();
-            translate(vec.x,0,vec.y);
+            translate(vec.x,0,vec.z);
             cylinder.display();
             popMatrix();
           }
@@ -73,8 +68,8 @@ void draw() {
 
 void mouseDragged()
 {
-  posX += (mouseY - pmouseY)*speed;
-  posZ += (mouseX - pmouseX)*speed;
+  posX -= (mouseY - pmouseY)*speed;
+  posZ -= (mouseX - pmouseX)*speed;
 }
 
 void mouseWheel(MouseEvent event)
@@ -86,6 +81,22 @@ void keyPressed(){
   if(key == CODED){
     if(keyCode == SHIFT){
       mode = Mode.PUT;
+    }
+  }
+}
+
+void mouseClicked(){
+  if(mode == Mode.PUT){
+    float x = 2.f*mouseX/width -1;
+    float y = 2.f*mouseY/height -1;
+    float ratio = 1.f*width/height;
+    float whh = viewheight*tan(fov/2);
+    float whw = whh*ratio;
+    
+    float px = x*whw;
+    float py = -y*whh;
+    if(abs(px) <= boxWidth/2.f-cylinderR && abs(py) <= boxHeight/2.f-cylinderR){
+      cylinders.add(new PVector(px,0,py));
     }
   }
 }

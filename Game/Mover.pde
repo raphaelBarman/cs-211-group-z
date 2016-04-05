@@ -1,3 +1,4 @@
+import java.util.List;
 class Mover {
   final float GRAVITYCONSTANT = 9.81;
   final float TIMECONSTANT = 1f/24;
@@ -25,7 +26,7 @@ class Mover {
     location.add(PVector.mult(velocity,TIMECONSTANT));
   }
   
-  void checkEdges(float boxWidth, float boxHeight) {
+  void checkEdges() {
     if (location.x > boxWidth/2f) {
       location.x = boxWidth/2f;
       velocity.x = velocity.x * (-1);
@@ -44,10 +45,20 @@ class Mover {
     }
   }
   
+  void physics(List<PVector> cylinders) {
+   checkEdges();
+   for(PVector p : cylinders) {
+     PVector flatLocation = new PVector(location.x,0,location.z);
+     if(ShapeUtils.collideWith(flatLocation,p,cylinderR,sphereR)){
+       velocity = ShapeUtils.cylinderBounce(velocity,flatLocation,p);
+     }
+   }
+  }
+  
   void display() {
     noStroke();
-    lights();
+    //lights();
     translate(location.x,location.y,location.z);
-    sphere(2);
+    sphere(sphereR);
   }
 }

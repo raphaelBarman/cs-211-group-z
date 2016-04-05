@@ -16,6 +16,7 @@ class Cylinder
   void updateShape()
   {
     float angle = 2*PI/count;
+    //fill(255,0,0);
     side = createShape();
     side.beginShape(TRIANGLE_STRIP);
     top = createShape();
@@ -35,17 +36,30 @@ class Cylinder
     bottom.endShape();
     top.endShape();
     side.endShape();
+        bottom.setFill(color(255,0,0));
+    top.setFill(color(255,0,0));
+    side.setFill(color(255,0,0));
   }
   
-  
+
   
   void display()
   {
     noStroke();
-    lights();
-    shape(side); //<>//
+    //lights();/<>//
     shape(top);
+    shape(side);
     shape(bottom);
   }
   
 };
+
+static class ShapeUtils {
+    static boolean collideWith(PVector p1, PVector p2, float r1, float r2){
+     return p1.dist(p2) < r1+r2;
+  }
+  static PVector cylinderBounce(PVector v, PVector p1, PVector p2){
+    PVector n = PVector.sub(p1,p2).normalize();
+    return PVector.add(v,PVector.mult(n,-2.f*PVector.dot(v,n)));
+  }
+}
