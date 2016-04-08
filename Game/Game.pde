@@ -21,7 +21,7 @@ void setup() {
 void draw() {
   switch(mode){
     case NORMAL:
-          camera(0, 40, -90, 0, 0, 0, 0, -1, 0);
+          camera(0, 70, -70, 0, 0, 0, 0, -1, 0);
           directionalLight(50, 100, 125, 0, -1, 0);
           ambientLight(102, 102, 102);
           background(200);

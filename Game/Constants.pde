@@ -8,4 +8,4 @@ float fov = PI/4;
 float cylinderH = 5;
 float cylinderR = 3;
 float sphereR = 2;
-float mu = 0.2;
+float mu = 2;

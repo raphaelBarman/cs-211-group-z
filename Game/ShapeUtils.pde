@@ -62,4 +62,7 @@ static class ShapeUtils {
     PVector n = PVector.sub(p1,p2).normalize();
     return PVector.add(v,PVector.mult(n,-2.f*PVector.dot(v,n)));
   }
+  static PVector extractFromCylinder(PVector p1, PVector p2, float r1, float r2) {
+     return PVector.sub(p1,p2).normalize().mult(r1+r2).add(p2);
+  }
 }

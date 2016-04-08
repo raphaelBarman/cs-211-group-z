@@ -50,6 +50,8 @@ class Mover {
    for(PVector p : cylinders) {
      PVector flatLocation = new PVector(location.x,0,location.z);
      if(ShapeUtils.collideWith(flatLocation,p,cylinderR,sphereR)){
+       flatLocation = ShapeUtils.extractFromCylinder(flatLocation,p,sphereR,cylinderR);
+       location = new PVector(flatLocation.x,location.y,flatLocation.z);
        velocity = ShapeUtils.cylinderBounce(velocity,flatLocation,p);
      }
    }
