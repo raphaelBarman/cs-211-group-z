@@ -3,65 +3,162 @@ Cylinder cylinder;
 Mover mover;
 Mode mode;
 enum Mode {
-  NORMAL,
+   NORMAL,
   PUT
 }
+// P3D canvas over which all 3d stuff is drawn.
+PGraphics canvas;
+
+PGraphics bottomBar;
+
+PGraphics topView;
+PVector oldLocation;
+
+PGraphics score;
+float  scoreTotal;
+float lastScore;
+
+PGraphics barChart;
 
 void settings() {
-  size(1024, 768, P3D);
+  size(1024, 768, P2D);
 }
 void setup() {
   mode = Mode.NORMAL;
-  noStroke();
-  perspective(fov,((float) width)/height,0.1,1000);
+  canvas = createGraphics(width,height,P3D);
+  canvas.beginDraw();
+  canvas.noStroke();
+  canvas.perspective(fov,((float) width)/height,0.1,1000);
+  canvas.endDraw();
   mover = new Mover();
   cylinders = new ArrayList();
   cylinder =  new Cylinder(16,cylinderH,cylinderR);
+  bottomBar = createGraphics(width,height/6,P2D);
+  topView = createGraphics((int)(bottomBar.height*0.9),(int)(bottomBar.height*0.9),P2D);
+  topView.beginDraw();
+  topView.background(6,101,130);
+  topView.endDraw();
+  score = createGraphics((int)(bottomBar.height*0.8),(int)(bottomBar.height*0.95),P2D);
+  scoreTotal = 0;
+  lastScore = 0;
+  barChart = createGraphics((int)(bottomBar.width*0.745),(int)(bottomBar.height*0.75),P2D);
 }
 void draw() {
+  canvas.beginDraw();
+  canvas.background(200);
+  
   switch(mode){
     case NORMAL:
-          camera(0, 70, -70, 0, 0, 0, 0, -1, 0);
-          directionalLight(50, 100, 125, 0, -1, 0);
-          ambientLight(102, 102, 102);
-          background(200);
+          canvas.beginCamera();
+          canvas.camera(0, 90, -90, 0, 0, 0, 0, -1, 0);
+          canvas.directionalLight(50, 100, 125, 0, -1, 0);
+          canvas.ambientLight(102, 102, 102);
+
           posX = Math.min(PI/3.,Math.max(posX,-PI/3));
           posZ = Math.min(PI/3.,Math.max(posZ,-PI/3));
-          pushMatrix();
-          rotateX(posX);
-          rotateZ(posZ);
-          box(boxWidth,1,boxHeight);
+          canvas.pushMatrix();
+          canvas.rotateX(posX);
+          canvas.rotateZ(posZ);
+          canvas.box(boxWidth,1,boxHeight);
           for(PVector vec : cylinders){
-            pushMatrix();
-            translate(vec.x,6/2,vec.z);
+            canvas.pushMatrix();
+            canvas.translate(vec.x,6/2,vec.z);
            cylinder.display();
-            popMatrix();
+            canvas.popMatrix();
           }
           mover.physics(cylinders);
           mover.update(posX,posZ);
           mover.display();
-          popMatrix();
+          canvas.popMatrix();
+          canvas.endCamera();
           break;
    case PUT:
-         camera(0, viewheight, 0, 0, 0, 0, 0, 0, -1);
-         directionalLight(50, 100, 125, 0, -1, 0);
-          ambientLight(102, 102, 102);
-          background(200);
+         canvas.beginCamera();
+         canvas.camera(0, viewheight, 0, 0, 0, 0, 0, 0, -1);
+         canvas.directionalLight(50, 100, 125, 0, -1, 0);
+          canvas.ambientLight(102, 102, 102);
           posX = Math.min(PI/3.,Math.max(posX,-PI/3));
           posZ = Math.min(PI/3.,Math.max(posZ,-PI/3));
-          pushMatrix();
+          canvas.pushMatrix();
            for(PVector vec : cylinders){
-            pushMatrix();
-            translate(vec.x,0,vec.z);
+            canvas.pushMatrix();
+            canvas.translate(vec.x,0,vec.z);
             cylinder.display();
-            popMatrix();
+            canvas.popMatrix();
           }
-          box(boxWidth,1,boxHeight);
+          canvas.box(boxWidth,1,boxHeight);
           mover.display();
-          popMatrix();
+          canvas.popMatrix();
+         canvas.endCamera();
          break;
   }
+  canvas.endDraw();
+  image(canvas,0,0);
 
+  drawBottomBar();
+  image(bottomBar,0,height-(bottomBar.height));
+
+}
+
+void drawBottomBar() {
+  drawTopView();
+  drawScore();
+  drawBarChart();
+  bottomBar.beginDraw();
+  bottomBar.background(230,226,175);
+  bottomBar.image(topView,bottomBar.height*0.95-topView.height,bottomBar.height*0.95-topView.height);
+  bottomBar.image(score,2*(bottomBar.height*0.95-topView.height)+topView.width,bottomBar.height*0.975-score.height);
+  bottomBar.image(barChart,bottomBar.width/4,bottomBar.height*0.95-topView.height);
+  bottomBar.endDraw();
+}
+
+void drawScore() {
+  score.beginDraw();
+  score.background(255);
+  score.fill(230,226,175);
+  score.noStroke();
+  score.rect(score.width-score.width*0.975,score.height-score.height*0.975,score.width*0.95,score.height*0.95);
+  score.fill(0);
+  String scoreString = "Total Score : \n"
+              + scoreTotal +
+              "\n\nVelocity : \n"
+              + mover.getCurrentSpeed() +
+              "\n\nLast Score : \n"
+              + lastScore;
+  score.text(scoreString,score.width/10,score.height/7);
+  
+  //score.text("hello", 15,15);
+  score.endDraw();
+}
+
+void updateScore(float speed) {
+   scoreTotal += speed;
+   lastScore = speed;
+}
+
+void drawTopView() {
+  topView.beginDraw();
+    //topView.background(6,101,130);
+    topView.noStroke();
+    PVector p = mover.getLocation();
+    if(oldLocation != null) {
+     topView.fill(6,97,126);
+     topView.ellipse((boxWidth/2+oldLocation.x)/boxWidth*topView.width,(boxHeight/2-oldLocation.y)/boxHeight*topView.height,sphereR/boxWidth*topView.width*2,sphereR/boxWidth*topView.width*2);
+    }
+    topView.fill(9, 153, 199);
+    topView.ellipse((boxWidth/2+p.x)/boxWidth*topView.width,(boxHeight/2-p.y)/boxHeight*topView.height,sphereR/boxWidth*topView.width*2,sphereR/boxWidth*topView.width*2);
+    topView.fill(255,0,0);
+    for(PVector vec : cylinders){
+       topView.ellipse((boxWidth/2+vec.x)/boxWidth*topView.width,(boxHeight/2-vec.z)/boxHeight*topView.height,cylinderR/boxWidth*topView.width*2,cylinderR/boxWidth*topView.width*2);
+    }
+    topView.endDraw();
+    oldLocation = p;
+}
+
+void drawBarChart() {
+  barChart.beginDraw();
+  barChart.background(239, 236, 202);
+  barChart.endDraw();
 }
 
 void mouseDragged()

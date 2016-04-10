@@ -28,18 +28,22 @@ class Mover {
   
   void checkEdges() {
     if (location.x > boxWidth/2f) {
+      updateScore(- getCurrentSpeed());
       location.x = boxWidth/2f;
       velocity.x = velocity.x * (-1);
     }
     else if (location.x < -boxWidth/2f) {
+       updateScore(- getCurrentSpeed());
       location.x = -boxWidth/2f;
       velocity.x = velocity.x * (-1);
     }
     if (location.z > boxHeight/2f) {
+       updateScore(- getCurrentSpeed());
       location.z = boxHeight/2f;
       velocity.z = velocity.z * (-1);
     }
     else if (location.z < -boxHeight/2f) {
+       updateScore(- getCurrentSpeed());
       location.z = -boxHeight/2f;
       velocity.z = velocity.z * (-1);
     }
@@ -50,6 +54,7 @@ class Mover {
    for(PVector p : cylinders) {
      PVector flatLocation = new PVector(location.x,0,location.z);
      if(ShapeUtils.collideWith(flatLocation,p,cylinderR,sphereR)){
+        updateScore(getCurrentSpeed());
        flatLocation = ShapeUtils.extractFromCylinder(flatLocation,p,sphereR,cylinderR);
        location = new PVector(flatLocation.x,location.y,flatLocation.z);
        velocity = ShapeUtils.cylinderBounce(velocity,flatLocation,p);
@@ -57,10 +62,12 @@ class Mover {
    }
   }
   
+  PVector getLocation() {return new PVector(location.x,location.z);}
+  float getCurrentSpeed() { return Math.round(velocity.mag()*1000.0)/1000.0;}
+  
   void display() {
-    noStroke();
-    //lights();
-    translate(location.x,location.y,location.z);
-    sphere(sphereR);
+    canvas.noStroke();
+    canvas.translate(location.x,location.y,location.z);
+    canvas.sphere(sphereR);
   }
 }
