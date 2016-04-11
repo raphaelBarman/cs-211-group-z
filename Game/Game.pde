@@ -1,4 +1,5 @@
 ArrayList<PVector> cylinders;
+ArrayList<Float> scoreLog;
 Cylinder cylinder;
 Mover mover;
 Mode mode;
@@ -32,6 +33,7 @@ void setup() {
   canvas.endDraw();
   mover = new Mover();
   cylinders = new ArrayList();
+  scoreLog = new ArrayList();
   cylinder =  new Cylinder(16,cylinderH,cylinderR);
   bottomBar = createGraphics(width,height/6,P2D);
   topView = createGraphics((int)(bottomBar.height*0.9),(int)(bottomBar.height*0.9),P2D);
@@ -96,8 +98,9 @@ void draw() {
   image(canvas,0,0);
 
   drawBottomBar();
+  //drawBarChart();
   image(bottomBar,0,height-(bottomBar.height));
-
+  //image(barChart,width-barChart.width,barChart.height);
 }
 
 void drawBottomBar() {
@@ -108,7 +111,7 @@ void drawBottomBar() {
   bottomBar.background(230,226,175);
   bottomBar.image(topView,bottomBar.height*0.95-topView.height,bottomBar.height*0.95-topView.height);
   bottomBar.image(score,2*(bottomBar.height*0.95-topView.height)+topView.width,bottomBar.height*0.975-score.height);
-  bottomBar.image(barChart,bottomBar.width/4,bottomBar.height*0.95-topView.height);
+  bottomBar.image(barChart,bottomBar.width/4,bottomBar.height*0.95-barChart.height);
   bottomBar.endDraw();
 }
 
@@ -134,6 +137,8 @@ void drawScore() {
 void updateScore(float speed) {
    scoreTotal += speed;
    lastScore = speed;
+   scoreLog.add(scoreTotal);
+   println("score log");
 }
 
 void drawTopView() {
@@ -158,6 +163,19 @@ void drawTopView() {
 void drawBarChart() {
   barChart.beginDraw();
   barChart.background(239, 236, 202);
+  float bw = 5f;
+  int count = (int)(barChart.width/bw);
+  barChart.fill(25,25,190);
+  barChart.noStroke();
+  float maxS = 0;
+  for(int i = max(scoreLog.size()-count,0); i < scoreLog.size(); i++) {
+    maxS = max(maxS,abs(scoreLog.get(i)));
+  }
+  int start = max(scoreLog.size()-count,0);
+  for(int i = start; i < scoreLog.size(); i++) {
+    float h = scoreLog.get(i)/maxS * barChart.height;
+    barChart.rect((i-start)*bw,barChart.height,bw,h,2,2,0,0);
+  }
   barChart.endDraw();
 }
 
