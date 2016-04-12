@@ -177,12 +177,13 @@ void drawTopView() {
 void drawBarChart() {
   barChart.beginDraw();
   barChart.background(239, 236, 202);
-  float bw = 9f;
+  float bw = 17f;
+  bw = 2 + bw*hScrollbar.getPos();
   float bh = 9f;
   float pad = 1.5f;
   int count = (int)(barChart.width/bw);
   color topc = color(30,30,180);
-  color botc = color(255,0,0);//color(80,100,180);
+  color botc = color(80,100,180);
   barChart.noStroke();
   float maxS = 1;
   for(int i = max(scoreLog.size()-count,0); i < scoreLog.size(); i++) {
@@ -193,7 +194,7 @@ void drawBarChart() {
     int h = (int)(scoreLog.get(i)/(maxS*bh) * barChart.height);
     for(int j = 0; j < h; j++) {
       barChart.fill(lerpColor(botc,topc,(float)j/h));
-      barChart.rect((i-start)*bw,barChart.height-j*bw,bw-pad,bh-pad,0,0,0,0);
+      barChart.rect((i-start)*bw,barChart.height-j*bh,bw-pad,bh-pad,0,0,0,0);
     }
   }
   barChart.endDraw();
