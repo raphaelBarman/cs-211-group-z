@@ -63,7 +63,7 @@ class Mover {
   }
   
   PVector getLocation() {return new PVector(location.x,location.z);}
-  float getCurrentSpeed() { return Math.round(velocity.mag()*1000.0)/1000.0;}
+  float getCurrentSpeed() { return (velocity.mag() > 1) ? Math.round(velocity.mag()*1000.0)/1000.0 : 0.0;}
   
   void display() {
     noStroke();
