@@ -159,12 +159,14 @@ void drawTopView() {
   topView.beginDraw();
     //topView.background(6,101,130);
     topView.noStroke();
+    topView.fill(6,101,130,12);
+    topView.rect(0,0,topView.width,topView.height);
     PVector p = mover.getLocation();
-    if(oldLocation != null) {
+    /*if(oldLocation != null) {
      topView.fill(6,97,126);
      topView.ellipse((boxWidth/2+oldLocation.x)/boxWidth*topView.width,(boxHeight/2-oldLocation.y)/boxHeight*topView.height,sphereR/boxWidth*topView.width*2,sphereR/boxWidth*topView.width*2);
-    }
-    topView.fill(9, 153, 199);
+    }*/
+    topView.fill(30, 173, 220);
     topView.ellipse((boxWidth/2+p.x)/boxWidth*topView.width,(boxHeight/2-p.y)/boxHeight*topView.height,sphereR/boxWidth*topView.width*2,sphereR/boxWidth*topView.width*2);
     topView.fill(255,0,0);
     for(PVector vec : cylinders){
