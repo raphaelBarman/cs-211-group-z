@@ -22,6 +22,8 @@ long frameID;
 
 PGraphics barChart;
 
+HScrollbar hScrollbar;
+
 void settings() {
   size(1024, 768, P3D);
 }
@@ -33,7 +35,7 @@ void setup() {
   cylinders = new ArrayList();
   scoreLog = new ArrayList();
   cylinder =  new Cylinder(16,cylinderH,cylinderR);
-  bottomBar = createGraphics(width,height/6,P2D);
+  bottomBar = createGraphics(width,height/5,P2D);
   topView = createGraphics((int)(bottomBar.height*0.9),(int)(bottomBar.height*0.9),P2D);
   topView.beginDraw();
   topView.background(6,101,130);
@@ -41,14 +43,15 @@ void setup() {
   score = createGraphics((int)(bottomBar.height*0.8),(int)(bottomBar.height*0.95),P2D);
   scoreTotal = 0;
   lastScore = 0;
-  barChart = createGraphics((int)(bottomBar.width*0.745),(int)(bottomBar.height*0.75),P2D);
+  barChart = createGraphics((int)(bottomBar.width*0.7),(int)(bottomBar.height*0.75),P2D);
   frameID = 0;
+  hScrollbar = new HScrollbar(bottomBar.width/3.5,height-height/30,bottomBar.width/6,bottomBar.height/10);
 }
 void draw() {
   perspective(fov,((float) width)/height,0.1,1000);
 
   background(200);
-  
+  fill(255);
   switch(mode){
     case NORMAL:
          frameID++;
@@ -105,6 +108,9 @@ void draw() {
   //drawBarChart();
   image(bottomBar,0,height-(bottomBar.height));
   //image(barChart,width-barChart.width,barChart.height);
+  hScrollbar.update();
+  hScrollbar.display();
+
 }
 
 void drawBottomBar() {
@@ -115,7 +121,7 @@ void drawBottomBar() {
   bottomBar.background(230,226,175);
   bottomBar.image(topView,bottomBar.height*0.95-topView.height,bottomBar.height*0.95-topView.height);
   bottomBar.image(score,2*(bottomBar.height*0.95-topView.height)+topView.width,bottomBar.height*0.975-score.height);
-  bottomBar.image(barChart,bottomBar.width/4,bottomBar.height*0.05);
+  bottomBar.image(barChart,bottomBar.width/3.5,bottomBar.height*0.05);
   bottomBar.endDraw();
 }
 
@@ -139,13 +145,10 @@ void drawScore() {
 }
 
 void updateScore(float speed) {
-  if(abs(speed) > 1) { 
    scoreTotal += speed;
    scoreTotal = Math.round((scoreTotal*1000.0)/1000.0);
    scoreTotal = max(0,scoreTotal);
    lastScore = speed;
- 
-  }
 }
 
 void pushLogs() {
@@ -176,7 +179,8 @@ void drawTopView() {
 void drawBarChart() {
   barChart.beginDraw();
   barChart.background(239, 236, 202);
-  float bw = 9f;
+  float bw = 17f;
+  bw = 2 + bw*hScrollbar.getPos();
   float bh = 9f;
   float pad = 1.5f;
   int count = (int)(barChart.width/bw);
@@ -192,7 +196,7 @@ void drawBarChart() {
     int h = (int)(scoreLog.get(i)/(maxS*bh) * barChart.height);
     for(int j = 0; j < h; j++) {
       barChart.fill(lerpColor(botc,topc,(float)j/h));
-      barChart.rect((i-start)*bw,barChart.height-j*bw,bw-pad,bh-pad,0,0,0,0);
+      barChart.rect((i-start)*bw,barChart.height-j*bh,bw-pad,bh-pad,0,0,0,0);
     }
   }
   barChart.endDraw();
@@ -200,8 +204,10 @@ void drawBarChart() {
 
 void mouseDragged()
 {
+  if(!hScrollbar.isLocked()){
   posX -= (mouseY - pmouseY)*speed;
   posZ -= (mouseX - pmouseX)*speed;
+  }
 }
 
 void mouseWheel(MouseEvent event)
