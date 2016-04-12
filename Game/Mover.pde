@@ -66,8 +66,8 @@ class Mover {
   float getCurrentSpeed() { return Math.round(velocity.mag()*1000.0)/1000.0;}
   
   void display() {
-    canvas.noStroke();
-    canvas.translate(location.x,location.y,location.z);
-    canvas.sphere(sphereR);
+    noStroke();
+    translate(location.x,location.y,location.z);
+    sphere(sphereR);
   }
 }

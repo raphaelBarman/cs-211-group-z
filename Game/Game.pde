@@ -8,7 +8,7 @@ enum Mode {
   PUT
 }
 // P3D canvas over which all 3d stuff is drawn.
-PGraphics canvas;
+//PGraphics canvas;
 
 PGraphics bottomBar;
 
@@ -22,15 +22,12 @@ float lastScore;
 PGraphics barChart;
 
 void settings() {
-  size(1024, 768, P2D);
+  size(1024, 768, P3D);
 }
 void setup() {
   mode = Mode.NORMAL;
-  canvas = createGraphics(width,height,P3D);
-  canvas.beginDraw();
-  canvas.noStroke();
-  canvas.perspective(fov,((float) width)/height,0.1,1000);
-  canvas.endDraw();
+  noStroke();
+  perspective(fov,((float) width)/height,0.1,1000);
   mover = new Mover();
   cylinders = new ArrayList();
   scoreLog = new ArrayList();
@@ -46,57 +43,57 @@ void setup() {
   barChart = createGraphics((int)(bottomBar.width*0.745),(int)(bottomBar.height*0.75),P2D);
 }
 void draw() {
-  canvas.beginDraw();
-  canvas.background(200);
+    perspective(fov,((float) width)/height,0.1,1000);
+  background(200);
   
   switch(mode){
     case NORMAL:
-          canvas.beginCamera();
-          canvas.camera(0, 90, -90, 0, 0, 0, 0, -1, 0);
-          canvas.directionalLight(50, 100, 125, 0, -1, 0);
-          canvas.ambientLight(102, 102, 102);
+          beginCamera();
+          camera(0, 90, -90, 0, 0, 0, 0, -1, 0);
+          directionalLight(50, 100, 125, 0, -1, 0);
+          ambientLight(102, 102, 102);
 
           posX = Math.min(PI/3.,Math.max(posX,-PI/3));
           posZ = Math.min(PI/3.,Math.max(posZ,-PI/3));
-          canvas.pushMatrix();
-          canvas.rotateX(posX);
-          canvas.rotateZ(posZ);
-          canvas.box(boxWidth,1,boxHeight);
+          pushMatrix();
+          rotateX(posX);
+          rotateZ(posZ);
+          box(boxWidth,1,boxHeight);
           for(PVector vec : cylinders){
-            canvas.pushMatrix();
-            canvas.translate(vec.x,6/2,vec.z);
+            pushMatrix();
+            translate(vec.x,6/2,vec.z);
            cylinder.display();
-            canvas.popMatrix();
+            popMatrix();
           }
           mover.physics(cylinders);
           mover.update(posX,posZ);
           mover.display();
-          canvas.popMatrix();
-          canvas.endCamera();
+          popMatrix();
+          endCamera();
           break;
    case PUT:
-         canvas.beginCamera();
-         canvas.camera(0, viewheight, 0, 0, 0, 0, 0, 0, -1);
-         canvas.directionalLight(50, 100, 125, 0, -1, 0);
-          canvas.ambientLight(102, 102, 102);
+         beginCamera();
+         camera(0, viewheight, 0, 0, 0, 0, 0, 0, -1);
+         directionalLight(50, 100, 125, 0, -1, 0);
+          ambientLight(102, 102, 102);
           posX = Math.min(PI/3.,Math.max(posX,-PI/3));
           posZ = Math.min(PI/3.,Math.max(posZ,-PI/3));
-          canvas.pushMatrix();
+          pushMatrix();
            for(PVector vec : cylinders){
-            canvas.pushMatrix();
-            canvas.translate(vec.x,0,vec.z);
+            pushMatrix();
+            translate(vec.x,0,vec.z);
             cylinder.display();
-            canvas.popMatrix();
+            popMatrix();
           }
-          canvas.box(boxWidth,1,boxHeight);
+          box(boxWidth,1,boxHeight);
           mover.display();
-          canvas.popMatrix();
-         canvas.endCamera();
+          popMatrix();
+         endCamera();
          break;
   }
-  canvas.endDraw();
-  image(canvas,0,0);
-
+  ortho();
+  camera();
+  noLights();
   drawBottomBar();
   //drawBarChart();
   image(bottomBar,0,height-(bottomBar.height));

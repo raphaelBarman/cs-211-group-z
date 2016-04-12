@@ -45,11 +45,11 @@ class Cylinder
   
   void display()
   {
-    canvas.noStroke();
+    noStroke();
     //lights();/<>//
-    canvas.shape(top);
-    canvas.shape(side);
-    canvas.shape(bottom);
+    shape(top);
+    shape(side);
+   shape(bottom);
   }
   
 };
