@@ -18,6 +18,7 @@ PVector oldLocation;
 PGraphics score;
 float  scoreTotal;
 float lastScore;
+long frameID;
 
 PGraphics barChart;
 
@@ -41,13 +42,16 @@ void setup() {
   scoreTotal = 0;
   lastScore = 0;
   barChart = createGraphics((int)(bottomBar.width*0.745),(int)(bottomBar.height*0.75),P2D);
+  frameID = 0;
 }
 void draw() {
-    perspective(fov,((float) width)/height,0.1,1000);
+  perspective(fov,((float) width)/height,0.1,1000);
+
   background(200);
   
   switch(mode){
     case NORMAL:
+         frameID++;
           beginCamera();
           camera(0, 90, -90, 0, 0, 0, 0, -1, 0);
           directionalLight(50, 100, 125, 0, -1, 0);
@@ -94,6 +98,9 @@ void draw() {
   ortho();
   camera();
   noLights();
+  if(frameID % logPeriod == 0) {
+    pushLogs();
+  }
   drawBottomBar();
   //drawBarChart();
   image(bottomBar,0,height-(bottomBar.height));
@@ -108,7 +115,7 @@ void drawBottomBar() {
   bottomBar.background(230,226,175);
   bottomBar.image(topView,bottomBar.height*0.95-topView.height,bottomBar.height*0.95-topView.height);
   bottomBar.image(score,2*(bottomBar.height*0.95-topView.height)+topView.width,bottomBar.height*0.975-score.height);
-  bottomBar.image(barChart,bottomBar.width/4,bottomBar.height*0.95-barChart.height);
+  bottomBar.image(barChart,bottomBar.width/4,bottomBar.height*0.05);
   bottomBar.endDraw();
 }
 
@@ -132,10 +139,17 @@ void drawScore() {
 }
 
 void updateScore(float speed) {
+  if(abs(speed) > 1) { 
    scoreTotal += speed;
+   scoreTotal = Math.round((scoreTotal*1000.0)/1000.0);
+   scoreTotal = max(0,scoreTotal);
    lastScore = speed;
+ 
+  }
+}
+
+void pushLogs() {
    scoreLog.add(scoreTotal);
-   println("score log");
 }
 
 void drawTopView() {
@@ -164,13 +178,13 @@ void drawBarChart() {
   int count = (int)(barChart.width/bw);
   barChart.fill(25,25,190);
   barChart.noStroke();
-  float maxS = 0;
+  float maxS = 1;
   for(int i = max(scoreLog.size()-count,0); i < scoreLog.size(); i++) {
     maxS = max(maxS,abs(scoreLog.get(i)));
   }
   int start = max(scoreLog.size()-count,0);
   for(int i = start; i < scoreLog.size(); i++) {
-    float h = scoreLog.get(i)/maxS * barChart.height;
+    float h = -scoreLog.get(i)/maxS * barChart.height;
     barChart.rect((i-start)*bw,barChart.height,bw,h,2,2,0,0);
   }
   barChart.endDraw();

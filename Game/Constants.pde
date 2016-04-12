@@ -9,3 +9,4 @@ float cylinderH = 5;
 float cylinderR = 3;
 float sphereR = 2;
 float mu = 2;
+int logPeriod = 4;
