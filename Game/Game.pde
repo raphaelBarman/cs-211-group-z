@@ -182,8 +182,8 @@ void drawBarChart() {
   float bh = 9f;
   float pad = 1.5f;
   int count = (int)(barChart.width/bw);
-  color topc = color(30,30,180);
-  color botc = color(80,100,180);
+  color topc = color(4, 69, 158);
+  color botc = color(41, 117, 141);
   barChart.noStroke();
   float maxS = 1;
   for(int i = max(scoreLog.size()-count,0); i < scoreLog.size(); i++) {
