@@ -7,8 +7,6 @@ enum Mode {
    NORMAL,
   PUT
 }
-// P3D canvas over which all 3d stuff is drawn.
-//PGraphics canvas;
 
 PGraphics bottomBar;
 
@@ -159,7 +157,7 @@ void drawTopView() {
   topView.beginDraw();
     //topView.background(6,101,130);
     topView.noStroke();
-    topView.fill(6,101,130,12);
+    topView.fill(6,101,130,48);
     topView.rect(0,0,topView.width,topView.height);
     PVector p = mover.getLocation();
     /*if(oldLocation != null) {
