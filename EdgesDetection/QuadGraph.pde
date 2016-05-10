@@ -251,13 +251,14 @@ class QuadGraph {
     PVector v14= PVector.sub(c4, c1);
 
     float i1=v21.cross(v32).z;
-    float i2=v32.cross(v43).z;
+    //float i2=v32.cross(v43).z;
+        float i2=0;
     float i3=v43.cross(v14).z;
-    float i4=v14.cross(v21).z;
+    float i4=0;
 
     float area = Math.abs(0.5f * (i1 + i2 + i3 + i4));
 
-    //System.out.println(area);
+    System.out.println(area);
 
     boolean valid = (area < max_area && area > min_area);
 

@@ -2,7 +2,7 @@ import processing.video.*;
 import java.util.*;
 Capture cam;
 
-int minVotes = 50;
+int minVotes = 60;
 int baseHue = 113;
 int hueRadius = 15;
 
@@ -28,7 +28,7 @@ void setup()
     //   cam.start();
     //}
 
-    base_img = loadImage("board1.jpg");
+    base_img = loadImage("board3.jpg");
     noLoop(); // no interactive behaviour: draw() will be called only once.
     result = filterHueAndBrightness(base_img,84,140,30,150);
     result = gaussianBlur(result,12);
@@ -48,8 +48,8 @@ void draw()
     //result = gaussianBlur(result,12);
     //result = threshold(result,180);
     //result = sobel(result);
-    //image(result,0,0);
-    image(base_img, 0, 0);
+    image(result,0,0);
+    //image(base_img, 0, 0);
     QuadGraph qg = new QuadGraph();
     List<PVector> lines = hough(result,6);
     getIntersections(lines);
@@ -67,7 +67,7 @@ void draw()
     PVector c23 = intersection(l2, l3);
     PVector c34 = intersection(l3, l4);
     PVector c41 = intersection(l4, l1);
-    if(qg.isConvex(c12,c23,c34,c41) && qg.validArea(c12,c23,c34,c41,800000,5000) && qg.nonFlatQuad(c12,c23,c34,c41)){
+    if(qg.isConvex(c12,c23,c34,c41) && qg.validArea(c12,c23,c34,c41,base_img.width*base_img.height,5000) && qg.nonFlatQuad(c12,c23,c34,c41)){
     // Choose a random, semi-transparent colour
     Random random = new Random();
     fill(color(min(255, random.nextInt(300)),
