@@ -1,6 +1,7 @@
 import processing.video.*;
 import java.util.*;
 Capture cam;
+ImageProcessing ip = new ImageProcessing();
 
 int minVotes = 80;
 int baseHue = 117;
@@ -13,6 +14,7 @@ void settings()
 {
     size(1650, 450);
 }
+
 void setup()
 {
     //String[] cameras = Capture.list();
@@ -32,25 +34,19 @@ void setup()
     base_img.resize(600,450);
     println("width : " + base_img.width + " height: " + base_img.height);
     noLoop(); // no interactive behaviour: draw() will be called only once.
-    result = filterHueAndBrightness(base_img, 87, 140,24,244,46,256);
-    //result = filterHueAndBrightness(base_img,baseHue-hueRadius,baseHue+hueRadius,31,143);
-    result = gaussianBlur(result,4);
-    result = threshold(result,244);
-    result = sobel(result);
+    
+    result = ip.fullFilterImage(base_img);
 }
 
 
 void draw()
 {
+    //Cam reading stuff
     //if (cam.available() == true) {
     //    cam.read();
     //}
     //base_img = cam.get();
-    // result = filterHueAndBrightness(base_img, 87, 140, 30,250,50,256);
-    //result = gaussianBlur(result,12);
-    //result = threshold(result,180);
-    //result = sobel(result);
-//    image(result,0,0);
+    
     image(base_img, 0, 0);
     image(result,600+height,0);
     final QuadGraph qg = new QuadGraph();
@@ -58,7 +54,7 @@ void draw()
     getIntersections(lines);
     qg.build(lines,base_img.width,base_img.height);
     List<int[]> quads = qg.findCycles();
-    quads.sort(new Comparator<int[]>() {
+    quads.sort(new Comparator<int[]>() { //Sort quad by area
         public int compare(int[] q1, int[] q2) {
             return Float.compare(
                        qg.quadArea(lines.get(q1[0]),lines.get(q1[1]),lines.get(q1[2]),lines.get(q1[3])),
@@ -70,9 +66,7 @@ void draw()
         PVector l2 = lines.get(quad[1]);
         PVector l3 = lines.get(quad[2]);
         PVector l4 = lines.get(quad[3]);
-        // (intersection() is a simplified version of the
-        // intersections() method you wrote last week, that simply
-        // return the coordinates of the intersection between 2 lines)
+        
         PVector c12 = intersection(l1, l2);
         PVector c23 = intersection(l2, l3);
         PVector c34 = intersection(l3, l4);
@@ -94,178 +88,10 @@ void draw()
             line(c23.x,c23.y,c34.x,c34.y);
             line(c34.x,c34.y,c41.x,c41.y);
             line(c41.x,c41.y,c12.x,c12.y);
-            return;
-            //quad(c12.x,c12.y,c23.x,c23.y,c34.x,c34.y,c41.x,c41.y);
+            return; //Only draw the first valid quad
         }
     }
-    //getIntersections(hough(result,4));
 }
-
-color convolution(int x, int y, float[][] matrix, PImage img)
-{
-    float rtotal = 0.0;
-    float gtotal = 0.0;
-    float btotal = 0.0;
-    int xoffset = matrix.length / 2;
-    int yoffset = matrix[0].length / 2;
-    for (int i = 0; i < matrix.length; i++) {
-        for (int j= 0; j < matrix[0].length; j++) {
-            // What pixel are we testing
-            int xloc = x+i-xoffset;
-            int yloc = y+j-yoffset;
-            int loc = xloc + img.width*yloc;
-            // Make sure we haven't walked off our image, we could do better here
-            loc = constrain(loc,0,img.pixels.length-1);
-            // Calculate the convolution
-            rtotal += (red(img.pixels[loc]) * matrix[i][j]);
-            gtotal += (green(img.pixels[loc]) * matrix[i][j]);
-            btotal += (blue(img.pixels[loc]) * matrix[i][j]);
-        }
-    }
-    // Make sure RGB is within range
-    rtotal = constrain(rtotal, 0, 255);
-    gtotal = constrain(gtotal, 0, 255);
-    btotal = constrain(btotal, 0, 255);
-    // Return the resulting color
-    return color(rtotal, gtotal, btotal);
-}
-
-float intConv(int x, int y, float[][] matrix, PImage img)
-{
-    float sum = 0;
-    int xoffset = matrix.length / 2;
-    int yoffset = matrix[0].length / 2;
-    for (int i = 0; i < matrix.length; i++) {
-        for (int j= 0; j < matrix[0].length; j++) {
-            // What pixel are we testing
-            int xloc = x+i-xoffset;
-            int yloc = y+j-yoffset;
-            int loc = xloc + img.width*yloc;
-            // Make sure we haven't walked off our image, we could do better here
-            loc = constrain(loc,0,img.pixels.length-1);
-            // Calculate the convolution
-            sum += (brightness(img.pixels[loc]) * matrix[i][j]);
-        }
-    }
-    return sum;
-}
-
-PImage sobel(PImage img)
-{
-    float[][] hKernel = { { 0, 1, 0 },
-        { 0, 0, 0 },
-        { 0, -1, 0 }
-    };
-    float[][] vKernel = { { 0, 0, 0 },
-        { 1, 0, -1 },
-        { 0, 0, 0 }
-    };
-    PImage result = createImage(img.width, img.height, ALPHA);
-    // clear the image
-    for (int i = 0; i < img.width * img.height; i++) {
-        result.pixels[i] = color(0);
-    }
-    float max=0;
-    float[] buffer = new float[img.width * img.height];
-
-    for(int x = 0; x < img.width; x++) {
-        for(int y = 0; y < img.height; y++) {
-            float h = intConv(x,y,hKernel,img);
-            float v = intConv(x,y,vKernel,img);
-            float b = sqrt(h*h+v*v);
-            buffer[x+y*img.width] = b;
-            max = max(max,b);
-        }
-    }
-
-    for (int y = 2; y < img.height - 2; y++) { // Skip top and bottom edges
-        for (int x = 2; x < img.width - 2; x++) { // Skip left and right
-            if (buffer[y * img.width + x] > (int)(max * 0.3f)) { // 30% of the max
-                result.pixels[y * img.width + x] = color(255);
-            } else {
-                result.pixels[y * img.width + x] = color(0);
-            }
-        }
-    }
-    return result;
-}
-
-PImage convolve(PImage src, float [][] ker)
-{
-    PImage result = createImage(src.width,src.height,RGB);
-    for(int x = 0; x < src.width; x++) {
-        for(int y = 0; y < src.height; y++) {
-            result.pixels[x+y*src.width] = convolution(x,y,ker,src);
-        }
-    }
-    return result;
-}
-
-PImage filterHueAndBrightness(PImage image, int minHue, int maxHue, int minBright, int maxBright,int minSat, int maxSat)
-{
-    PImage result = createImage(image.width, image.height, RGB); // create a new, initially transparent, ’result’ image
-    for(int i = 0; i < image.width * image.height; i++) {
-        color c = image.pixels[i];
-        float hue = hue(c);
-        float brightness = brightness(c);
-        float sat = saturation(c);
-        if(minHue <= hue && maxHue >= hue && brightness < maxBright && brightness > minBright && sat > minSat && sat < maxSat) {
-            result.pixels[i] = color(255);
-        } else {
-            result.pixels[i] = color(0);
-        }
-    }
-    result.updatePixels();
-    return result;
-}
-
-PImage threshold(PImage image, int tres)
-{
-    PImage result = createImage(image.width, image.height, RGB); // create a new, initially transparent, ’result’ image
-    for(int i = 0; i < image.width * image.height; i++) {
-        color c = image.pixels[i];
-        if(brightness(c) < tres) {
-            result.pixels[i] = color(0);
-        } else {
-            result.pixels[i] = color(255);
-        }
-    }
-    return result;
-}
-
-PImage gaussianBlur(PImage img, int kernelSize)
-{
-    //PImage result = createImage(img.width,img.height,RGB);
-    float [][]hKer = new float[kernelSize][1];
-    float [][]vKer = new float[1][kernelSize];
-    int median = kernelSize/2;
-    float a = 1.f/sqrt(kernelSize*2*PI);
-    float c = 2*kernelSize;
-    for(int i = 0; i < kernelSize/2; i++) {
-        float x = i;
-        float v = a*exp(-(x*x)/c);
-        hKer[median+i][0] =v;
-        vKer[0][median+i] = v;
-        hKer[median-i][0] =v;
-        vKer[0][median-i] = v;
-    }
-    //Normalise kernel
-    float sum= 0;
-    for(float []line : hKer) {
-        for(float el : line) {
-            sum += el;
-        }
-    }
-    for(int i = 0; i < kernelSize; i++) {
-        hKer[i][0] /= sum;
-        vKer[0][i] /= sum;
-    }
-
-    result = convolve(img,hKer);
-    result = convolve(result,vKer);
-    return result;
-}
-
 
 ArrayList<PVector> hough(PImage edgeImg,int nLines)
 {
@@ -322,32 +148,27 @@ ArrayList<PVector> hough(PImage edgeImg,int nLines)
     image(houghImg,600,0);
 
     ArrayList<Integer> bestCandidates = new ArrayList<Integer>();
-    //for (int idx = 0; idx < accumulator.length; idx++) {
-    //    if (accumulator[idx] > minVotes) {
-    //      bestCandidates.add(idx);
-    //    }
-    //  }
     // size of the region we search for a local maximum
     int neighbourhood = 30;
-// only search around lines with more that this amount of votes
-// (to be adapted to your image)
-//int minVotes = 200;
+    // only search around lines with more that this amount of votes
+    // (to be adapted to your image)
+    //int minVotes = 200;
     for (int accR = 0; accR < rDim; accR++) {
         for (int accPhi = 0; accPhi < phiDim; accPhi++) {
-// compute current index in the accumulator
+        // compute current index in the accumulator
             int idx = (accPhi + 1) * (rDim + 2) + accR + 1;
             if (accumulator[idx] > minVotes) {
                 boolean bestCandidate=true;
-// iterate over the neighbourhood
+                // iterate over the neighbourhood
                 for(int dPhi=-neighbourhood/2; dPhi < neighbourhood/2+1; dPhi++) {
-// check we are not outside the image
+                    // check we are not outside the image
                     if( accPhi+dPhi < 0 || accPhi+dPhi >= phiDim) continue;
                     for(int dR=-neighbourhood/2; dR < neighbourhood/2 +1; dR++) {
                         // check we are not outside the image
                         if(accR+dR < 0 || accR+dR >= rDim) continue;
                         int neighbourIdx = (accPhi + dPhi + 1) * (rDim + 2) + accR + dR + 1;
                         if(accumulator[idx] < accumulator[neighbourIdx]) {
-// the current idx is not a local maximum!
+                            // the current idx is not a local maximum!
                             bestCandidate=false;
                             break;
                         }
@@ -355,7 +176,7 @@ ArrayList<PVector> hough(PImage edgeImg,int nLines)
                     if(!bestCandidate) break;
                 }
                 if(bestCandidate) {
-// the current idx *is* a local maximum
+                      // the current idx *is* a local maximum
                     bestCandidates.add(idx);
                 }
             }
@@ -380,39 +201,42 @@ ArrayList<PVector> hough(PImage edgeImg,int nLines)
         int y2 = (int) (-cos(phi) / sin(phi) * x2 + r / sin(phi));
         int y3 = edgeImg.width;
         int x3 = (int) (-(y3 - r / sin(phi)) * (sin(phi) / cos(phi)));
-
-//        stroke(204,102,0);
-//        if (y0 > 0) {
-//          if (x1 > 0)
-//              line(x0, y0,
-//                   x1, y1);
-//          else if (y2 > 0)
-//              line(x0, y0,
-//                   x2, y2);
-//          else
-//              line(x0, y0,
-//                   x3, y3);
-//        } else {
-//          if (x1 > 0) {
-//              if (y2 > 0)
-//                  line(x1,
-//                       y1, x2, y2);
-//              else
-//                  line(x1,
-//                       y1, x3, y3);
-//          } else
-//              line(x2, y2,
-//                   x3, y3);
-//        }
     }
     return selection;
 }
+
 PVector intersection(PVector line1, PVector line2)
 {
     float d = cos(line2.y)*sin(line1.y)-cos(line1.y)*sin(line2.y);
     float x = (line2.x*sin(line1.y)-line1.x*sin(line2.y))/d;
     float y = (-line2.x*cos(line1.y)+line1.x*cos(line2.y))/d;
     return new PVector(x,y);
+}
+
+void drawLineInRect(float x0, float y0, float x1, float y1, float w,float h) {
+   /*stroke(204,102,0);
+   if (y0 > 0) {
+     if (x1 > 0)
+         line(x0, y0,
+              x1, y1);
+     else if (y2 > 0)
+         line(x0, y0,
+              x2, y2);
+     else
+         line(x0, y0,
+              x3, y3);
+   } else {
+     if (x1 > 0) {
+         if (y2 > 0)
+             line(x1,
+                  y1, x2, y2);
+         else
+             line(x1,
+                  y1, x3, y3);
+     } else
+         line(x2, y2,
+              x3, y3);
+   }*/
 }
 
 ArrayList<PVector> getIntersections(List<PVector> lines)
@@ -426,10 +250,6 @@ ArrayList<PVector> getIntersections(List<PVector> lines)
             float x = (line2.x*sin(line1.y)-line1.x*sin(line2.y))/d;
             float y = (-line2.x*cos(line1.y)+line1.x*cos(line2.y))/d;
             intersections.add(new PVector(x,y));
-            // compute the intersection and add it to ’intersections’
-            // draw the intersection
-            //fill(255, 128, 0);
-            //ellipse(x, y, 10, 10);
         }
     }
     return intersections;
