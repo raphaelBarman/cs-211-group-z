@@ -77,7 +77,7 @@ class QuadGraph
             for (int i = 1; i < cy.length; i++) {
                 s += "," + cy[i];
             }
-            System.out.println(s);
+            //System.out.println(s);
         }
         return cycles;
     }
@@ -232,7 +232,7 @@ class QuadGraph
                || (i1<0 && i2<0 && i3<0 && i4<0))
             return true;
         else
-            System.out.println("Eliminating non-convex quad");
+            //System.out.println("Eliminating non-convex quad");
         return false;
     }
 
@@ -242,11 +242,11 @@ class QuadGraph
     {
         float area = quadArea(c1,c2,c3,c4);
 
-        System.out.println(area);
+        //System.out.println(area);
 
         boolean valid = (area < max_area && area > min_area);
 
-        if (!valid) System.out.println("Area out of range");
+        //if (!valid) System.out.println("Area out of range");
 
         return valid;
     }
@@ -292,7 +292,7 @@ class QuadGraph
         if (cos1 < min_cos && cos2 < min_cos && cos3 < min_cos && cos4 < min_cos)
             return true;
         else {
-            System.out.println("Flat quad");
+            //System.out.println("Flat quad");
             return false;
         }
     }

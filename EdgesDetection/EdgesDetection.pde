@@ -13,7 +13,7 @@ PImage houghImg;
 
 void settings()
 {
-  size(1650, 450);
+    size(800, 600);
 }
 
 void setup()
@@ -38,7 +38,6 @@ void setup()
 
   result = ip.fullFilterImage(base_img);
 }
-
 
 void draw()
 {
@@ -209,6 +208,58 @@ ArrayList<PVector> hough(PImage edgeImg, int nLines)
     }
   }
 
+    //PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
+    //for (int i = 0; i < accumulator.length; i++) {
+    //    houghImg.pixels[i] = color(min(255, accumulator[i]));
+    //}
+    //// You may want to resize the accumulator to make it easier to see:
+    //houghImg.resize(height, height);
+    //houghImg.updatePixels();
+    //image(houghImg,600,0);
+
+    ArrayList<Integer> bestCandidates = new ArrayList<Integer>();
+    //for (int idx = 0; idx < accumulator.length; idx++) {
+    //    if (accumulator[idx] > minVotes) {
+    //      bestCandidates.add(idx);
+    //    }
+    //  }
+    // size of the region we search for a local maximum
+    int neighbourhood = 30;
+// only search around lines with more that this amount of votes
+// (to be adapted to your image)
+//int minVotes = 200;
+    for (int accR = 0; accR < rDim; accR++) {
+        for (int accPhi = 0; accPhi < phiDim; accPhi++) {
+// compute current index in the accumulator
+            int idx = (accPhi + 1) * (rDim + 2) + accR + 1;
+            if (accumulator[idx] > minVotes) {
+                boolean bestCandidate=true;
+// iterate over the neighbourhood
+                for(int dPhi=-neighbourhood/2; dPhi < neighbourhood/2+1; dPhi++) {
+// check we are not outside the image
+                    if( accPhi+dPhi < 0 || accPhi+dPhi >= phiDim) continue;
+                    for(int dR=-neighbourhood/2; dR < neighbourhood/2 +1; dR++) {
+                        // check we are not outside the image
+                        if(accR+dR < 0 || accR+dR >= rDim) continue;
+                        int neighbourIdx = (accPhi + dPhi + 1) * (rDim + 2) + accR + dR + 1;
+                        if(accumulator[idx] < accumulator[neighbourIdx]) {
+// the current idx is not a local maximum!
+                            bestCandidate=false;
+                            break;
+                        }
+                    }
+                    if(!bestCandidate) break;
+                }
+                if(bestCandidate) {
+// the current idx *is* a local maximum
+                    bestCandidates.add(idx);
+                }
+            }
+        }
+      }
+    }
+  }
+
 
   Collections.sort(bestCandidates, new HoughComparator(accumulator));
   ArrayList<PVector> selection = new ArrayList();
@@ -228,28 +279,6 @@ ArrayList<PVector> hough(PImage edgeImg, int nLines)
     int y3 = edgeImg.width;
     int x3 = (int) (-(y3 - r / sin(phi)) * (sin(phi) / cos(phi)));
     stroke(204, 102, 0);
-    /*if (y0 > 0) {
-     if (x1 > 0)
-     line(x0, y0,
-     x1, y1);
-     else if (y2 > 0)
-     line(x0, y0,
-     x2, y2);
-     else
-     line(x0, y0,
-     x3, y3);
-     } else {
-     if (x1 > 0) {
-     if (y2 > 0)
-     line(x1,
-     y1, x2, y2);
-     else
-     line(x1,
-     y1, x3, y3);
-     } else
-     line(x2, y2,
-     x3, y3);
-     }*/
   }
   return selection;
 }
