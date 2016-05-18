@@ -11,48 +11,47 @@ PImage result; // create a new, initially transparent, ’result’ image
 
 void settings()
 {
-    size(1650, 450);
+    size(800, 600);
 }
 void setup()
 {
     //String[] cameras = Capture.list();
     //if (cameras.length == 0) {
-    //   println("There are no cameras available for capture.");
-    //   exit();
+    //  println("There are no cameras available for capture.");
+    //  exit();
     //} else {
-    //   println("Available cameras:");
-    //   for (int i = 0; i < cameras.length; i++) {
-    //       println("index: "+ i+ " = " + cameras[i]);
-    //   }
-    //   cam = new Capture(this, cameras[3]);
-    //   cam.start();
+    //  println("Available cameras:");
+    //  for (int i = 0; i < cameras.length; i++) {
+    //      println("index: "+ i+ " = " + cameras[i]);
+    //  }
+    //  cam = new Capture(this, cameras[3]);
+    //  cam.start();
     //}
 
-    base_img = loadImage("board1.jpg");
-    base_img.resize(600,450);
-    println("width : " + base_img.width + " height: " + base_img.height);
-    noLoop(); // no interactive behaviour: draw() will be called only once.
-    result = filterHueAndBrightness(base_img, 87, 140,24,244,46,256);
-    //result = filterHueAndBrightness(base_img,baseHue-hueRadius,baseHue+hueRadius,31,143);
-    result = gaussianBlur(result,4);
-    result = threshold(result,244);
-    result = sobel(result);
+   base_img = loadImage("board1.jpg");
+   //base_img.resize(600,450);
+   println("width : " + base_img.width + " height: " + base_img.height);
+   noLoop(); // no interactive behaviour: draw() will be called only once.
+   result = filterHueAndBrightness(base_img, 87, 140,24,244,46,256);
+   //result = filterHueAndBrightness(base_img,baseHue-hueRadius,baseHue+hueRadius,31,143);
+   result = gaussianBlur(result,4);
+   result = threshold(result,244);
+   result = sobel(result);
 }
 
 
 void draw()
 {
     //if (cam.available() == true) {
-    //    cam.read();
+    //   cam.read();
     //}
     //base_img = cam.get();
-    // result = filterHueAndBrightness(base_img, 87, 140, 30,250,50,256);
+   //esult = filterHueAndBrightness(base_img, 87, 140,24,244,46,256);
     //result = gaussianBlur(result,12);
     //result = threshold(result,180);
     //result = sobel(result);
 //    image(result,0,0);
     image(base_img, 0, 0);
-    image(result,600+height,0);
     final QuadGraph qg = new QuadGraph();
     final List<PVector> lines = hough(result,6);
     getIntersections(lines);
@@ -65,6 +64,7 @@ void draw()
                        qg.quadArea(lines.get(q2[0]),lines.get(q2[1]),lines.get(q2[2]),lines.get(q2[3])));
         }
     });
+    TwoDThreeD twod3d = new TwoDThreeD(base_img.width,base_img.height);
     for (int[] quad : quads) {
         PVector l1 = lines.get(quad[0]);
         PVector l2 = lines.get(quad[1]);
@@ -79,10 +79,8 @@ void draw()
         PVector c41 = intersection(l4, l1);
         if(qg.isConvex(c12,c23,c34,c41) && qg.validArea(c12,c23,c34,c41,base_img.width*base_img.height,5000) && qg.nonFlatQuad(c12,c23,c34,c41)) {
             // Choose a random, semi-transparent colour
-            Random random = new Random();
-            fill(color(min(255, random.nextInt(300)),
-                       min(255, random.nextInt(300)),
-                       min(255, random.nextInt(300)), 50));
+            PVector rot = twod3d.get3DRotations(Arrays.asList(c12, c23, c34,c41));
+            println("rx :" + rot.x + " ry :" + rot.y + " rz :" + rot.z);
             noStroke();
             fill(255, 128, 0);
             ellipse(c12.x,c12.y,10,10);
@@ -94,7 +92,7 @@ void draw()
             line(c23.x,c23.y,c34.x,c34.y);
             line(c34.x,c34.y,c41.x,c41.y);
             line(c41.x,c41.y,c12.x,c12.y);
-            return;
+            //return;
             //quad(c12.x,c12.y,c23.x,c23.y,c34.x,c34.y,c41.x,c41.y);
         }
     }
@@ -312,14 +310,14 @@ ArrayList<PVector> hough(PImage edgeImg,int nLines)
         }
     }
 
-    PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
-    for (int i = 0; i < accumulator.length; i++) {
-        houghImg.pixels[i] = color(min(255, accumulator[i]));
-    }
-    // You may want to resize the accumulator to make it easier to see:
-    houghImg.resize(height, height);
-    houghImg.updatePixels();
-    image(houghImg,600,0);
+    //PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
+    //for (int i = 0; i < accumulator.length; i++) {
+    //    houghImg.pixels[i] = color(min(255, accumulator[i]));
+    //}
+    //// You may want to resize the accumulator to make it easier to see:
+    //houghImg.resize(height, height);
+    //houghImg.updatePixels();
+    //image(houghImg,600,0);
 
     ArrayList<Integer> bestCandidates = new ArrayList<Integer>();
     //for (int idx = 0; idx < accumulator.length; idx++) {
