@@ -31,7 +31,7 @@ void setup()
   //   cam.start();
   //}
 
-  base_img = loadImage("board4.jpg");
+  base_img = loadImage("board1.jpg");
   base_img.resize(600, 450);
   println("width : " + base_img.width + " height: " + base_img.height);
   noLoop(); // no interactive behaviour: draw() will be called only once.
