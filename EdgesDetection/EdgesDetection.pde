@@ -9,6 +9,7 @@ int hueRadius = 28;
 
 PImage base_img;
 PImage result; // create a new, initially transparent, ’result’ image
+PImage houghImg;
 
 void settings()
 {
@@ -30,11 +31,11 @@ void setup()
     //   cam.start();
     //}
 
-    base_img = loadImage("board1.jpg");
+    base_img = loadImage("board4.jpg");
     base_img.resize(600,450);
     println("width : " + base_img.width + " height: " + base_img.height);
     noLoop(); // no interactive behaviour: draw() will be called only once.
-    
+
     result = ip.fullFilterImage(base_img);
 }
 
@@ -46,9 +47,9 @@ void draw()
     //    cam.read();
     //}
     //base_img = cam.get();
-    
+
     image(base_img, 0, 0);
-    image(result,600+height,0);
+
     final QuadGraph qg = new QuadGraph();
     final List<PVector> lines = hough(result,6);
     getIntersections(lines);
@@ -61,12 +62,14 @@ void draw()
                        qg.quadArea(lines.get(q2[0]),lines.get(q2[1]),lines.get(q2[2]),lines.get(q2[3])));
         }
     });
+    image(result,600+height,0);
+    image(houghImg,600,0);
     for (int[] quad : quads) {
         PVector l1 = lines.get(quad[0]);
         PVector l2 = lines.get(quad[1]);
         PVector l3 = lines.get(quad[2]);
         PVector l4 = lines.get(quad[3]);
-        
+
         PVector c12 = intersection(l1, l2);
         PVector c23 = intersection(l2, l3);
         PVector c34 = intersection(l3, l4);
@@ -91,6 +94,7 @@ void draw()
             return; //Only draw the first valid quad
         }
     }
+
 }
 
 ArrayList<PVector> hough(PImage edgeImg,int nLines)
@@ -138,14 +142,14 @@ ArrayList<PVector> hough(PImage edgeImg,int nLines)
         }
     }
 
-    PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
+    houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
     for (int i = 0; i < accumulator.length; i++) {
         houghImg.pixels[i] = color(min(255, accumulator[i]));
     }
-    // You may want to resize the accumulator to make it easier to see:
+
+    //Resize the acc to see something
     houghImg.resize(height, height);
     houghImg.updatePixels();
-    image(houghImg,600,0);
 
     ArrayList<Integer> bestCandidates = new ArrayList<Integer>();
     // size of the region we search for a local maximum
@@ -155,7 +159,7 @@ ArrayList<PVector> hough(PImage edgeImg,int nLines)
     //int minVotes = 200;
     for (int accR = 0; accR < rDim; accR++) {
         for (int accPhi = 0; accPhi < phiDim; accPhi++) {
-        // compute current index in the accumulator
+            // compute current index in the accumulator
             int idx = (accPhi + 1) * (rDim + 2) + accR + 1;
             if (accumulator[idx] > minVotes) {
                 boolean bestCandidate=true;
@@ -176,11 +180,12 @@ ArrayList<PVector> hough(PImage edgeImg,int nLines)
                     if(!bestCandidate) break;
                 }
                 if(bestCandidate) {
-                      // the current idx *is* a local maximum
+                    // the current idx *is* a local maximum
                     bestCandidates.add(idx);
                 }
             }
         }
+
     }
 
 
@@ -201,6 +206,29 @@ ArrayList<PVector> hough(PImage edgeImg,int nLines)
         int y2 = (int) (-cos(phi) / sin(phi) * x2 + r / sin(phi));
         int y3 = edgeImg.width;
         int x3 = (int) (-(y3 - r / sin(phi)) * (sin(phi) / cos(phi)));
+        stroke(204,102,0);
+        if (y0 > 0) {
+            if (x1 > 0)
+                line(x0, y0,
+                     x1, y1);
+            else if (y2 > 0)
+                line(x0, y0,
+                     x2, y2);
+            else
+                line(x0, y0,
+                     x3, y3);
+        } else {
+            if (x1 > 0) {
+                if (y2 > 0)
+                    line(x1,
+                         y1, x2, y2);
+                else
+                    line(x1,
+                         y1, x3, y3);
+            } else
+                line(x2, y2,
+                     x3, y3);
+        }
     }
     return selection;
 }
@@ -211,32 +239,6 @@ PVector intersection(PVector line1, PVector line2)
     float x = (line2.x*sin(line1.y)-line1.x*sin(line2.y))/d;
     float y = (-line2.x*cos(line1.y)+line1.x*cos(line2.y))/d;
     return new PVector(x,y);
-}
-
-void drawLineInRect(float x0, float y0, float x1, float y1, float w,float h) {
-   /*stroke(204,102,0);
-   if (y0 > 0) {
-     if (x1 > 0)
-         line(x0, y0,
-              x1, y1);
-     else if (y2 > 0)
-         line(x0, y0,
-              x2, y2);
-     else
-         line(x0, y0,
-              x3, y3);
-   } else {
-     if (x1 > 0) {
-         if (y2 > 0)
-             line(x1,
-                  y1, x2, y2);
-         else
-             line(x1,
-                  y1, x3, y3);
-     } else
-         line(x2, y2,
-              x3, y3);
-   }*/
 }
 
 ArrayList<PVector> getIntersections(List<PVector> lines)
