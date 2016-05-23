@@ -2,6 +2,7 @@ import processing.video.*;
 import java.util.*;
 Capture cam;
 ImageProcessing ip = new ImageProcessing();
+TwoDThreeD _2D3D;
 
 int minVotes = 80;
 int baseHue = 117;
@@ -13,6 +14,7 @@ PImage houghImg;
 
 void settings()
 {
+    _2D3D = new TwoDThreeD(width,height);
     size(800, 600);
 }
 
@@ -32,12 +34,10 @@ void setup()
     //  cam.start();
     //}
 
-  base_img = loadImage("board1.jpg");
+  base_img = loadImage("board4.jpg");
   base_img.resize(600, 450);
   println("width : " + base_img.width + " height: " + base_img.height);
   noLoop(); // no interactive behaviour: draw() will be called only once.
-
-
   result = ip.fullFilterImage(base_img);
 }
 
@@ -92,6 +92,16 @@ void draw()
        line(c23.x,c23.y,c34.x,c34.y);
        line(c34.x,c34.y,c41.x,c41.y);
        line(c41.x,c41.y,c12.x,c12.y);*/
+       
+       PVector[] parray = {c12,c23,c34,c41};
+      List<PVector> final_quad = qg.sortCorners(Arrays.asList(parray));
+      for(PVector p : final_quad) {
+        println("p = " + p.x + " " + p.y);
+      }
+      PVector rot = _2D3D.get3DRotations(final_quad);
+      rot.mult(180.0/PI);
+      println("Rot x = " + rot.x + "\nrot y = " + rot.y +  "\nrot z = " + rot.z);
+      
       int far = 50000;
       PVector ln = PVector.sub(c12, c23).mult(far);
       ;
@@ -114,11 +124,12 @@ void draw()
       p2 = PVector.add(c12, ln);
       line(p1.x, p1.y, p2.x, p2.y);
       image(result, 600+height, 0);
-    image(houghImg, 600, 0);
+      image(houghImg, 600, 0);
+      
+      
       return; //Only draw the first valid quad
     }
   }
-  
 }
 
 ArrayList<PVector> hough(PImage edgeImg, int nLines)

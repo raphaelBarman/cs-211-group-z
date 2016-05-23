@@ -296,12 +296,8 @@ class QuadGraph
             return false;
         }
     }
-
-
-    List<PVector> sortCorners(List<PVector> quad)
-    {
-
-        // 1 - Sort corners so that they are ordered clockwise
+    public List<PVector> sortCorners(List<PVector> quad){
+   // 1 - Sort corners so that they are ordered clockwise
         PVector a = quad.get(0);
         PVector b = quad.get(2);
 
@@ -309,40 +305,28 @@ class QuadGraph
 
         Collections.sort(quad, new CWComparator(center));
 
-
-
         // 2 - Sort by upper left most corner
-        PVector origin = new PVector(0, 0);
-        float distToOrigin = 1000;
 
-        for (PVector p : quad) {
-            if (p.dist(origin) < distToOrigin) distToOrigin = p.dist(origin);
+        PVector origin = new PVector(0,0);
+        while((origin.dist(quad.get(0)) > origin.dist(quad.get(1))) ||
+            (origin.dist(quad.get(0)) > origin.dist(quad.get(3))) ||
+                               (origin.dist(quad.get(0)) > origin.dist(quad.get(2))) ) {
+          Collections.rotate(quad, 1);
         }
 
-        while (quad.get(0).dist(origin) != distToOrigin)
-            Collections.rotate(quad, 1);
-
-
         return quad;
-    }
+  }
 }
 
-
-class CWComparator implements Comparator<PVector>
-{
-
-    PVector center;
-
-    public CWComparator(PVector center)
-    {
-        this.center = center;
-    }
-
-    @Override
-    public int compare(PVector b, PVector d)
-    {
-        if (Math.atan2(b.y-center.y, b.x-center.x)<Math.atan2(d.y-center.y, d.x-center.x))
-            return -1;
-        else return 1;
-    }
+class CWComparator implements Comparator<PVector> {
+  PVector center;
+  public CWComparator(PVector center) {
+    this.center = center;
+  }
+  @Override
+  public int compare(PVector b, PVector d) {
+    if(Math.atan2(b.y-center.y,b.x-center.x)<Math.atan2(d.y-center.y,d.x-center.x))
+    return -1;
+    else return 1;
+  }
 }
