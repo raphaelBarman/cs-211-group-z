@@ -18,23 +18,25 @@ void settings()
 
 void setup()
 {
-  //String[] cameras = Capture.list();
-  //if (cameras.length == 0) {
-  //   println("There are no cameras available for capture.");
-  //   exit();
-  //} else {
-  //   println("Available cameras:");
-  //   for (int i = 0; i < cameras.length; i++) {
-  //       println("index: "+ i+ " = " + cameras[i]);
-  //   }
-  //   cam = new Capture(this, cameras[3]);
-  //   cam.start();
-  //}
+
+    //String[] cameras = Capture.list();
+    //if (cameras.length == 0) {
+    //  println("There are no cameras available for capture.");
+    //  exit();
+    //} else {
+    //  println("Available cameras:");
+    //  for (int i = 0; i < cameras.length; i++) {
+    //      println("index: "+ i+ " = " + cameras[i]);
+    //  }
+    //  cam = new Capture(this, cameras[3]);
+    //  cam.start();
+    //}
 
   base_img = loadImage("board1.jpg");
   base_img.resize(600, 450);
   println("width : " + base_img.width + " height: " + base_img.height);
   noLoop(); // no interactive behaviour: draw() will be called only once.
+
 
   result = ip.fullFilterImage(base_img);
 }
@@ -207,60 +209,7 @@ ArrayList<PVector> hough(PImage edgeImg, int nLines)
       }
     }
   }
-
-    //PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
-    //for (int i = 0; i < accumulator.length; i++) {
-    //    houghImg.pixels[i] = color(min(255, accumulator[i]));
-    //}
-    //// You may want to resize the accumulator to make it easier to see:
-    //houghImg.resize(height, height);
-    //houghImg.updatePixels();
-    //image(houghImg,600,0);
-
-    ArrayList<Integer> bestCandidates = new ArrayList<Integer>();
-    //for (int idx = 0; idx < accumulator.length; idx++) {
-    //    if (accumulator[idx] > minVotes) {
-    //      bestCandidates.add(idx);
-    //    }
-    //  }
-    // size of the region we search for a local maximum
-    int neighbourhood = 30;
-// only search around lines with more that this amount of votes
-// (to be adapted to your image)
-//int minVotes = 200;
-    for (int accR = 0; accR < rDim; accR++) {
-        for (int accPhi = 0; accPhi < phiDim; accPhi++) {
-// compute current index in the accumulator
-            int idx = (accPhi + 1) * (rDim + 2) + accR + 1;
-            if (accumulator[idx] > minVotes) {
-                boolean bestCandidate=true;
-// iterate over the neighbourhood
-                for(int dPhi=-neighbourhood/2; dPhi < neighbourhood/2+1; dPhi++) {
-// check we are not outside the image
-                    if( accPhi+dPhi < 0 || accPhi+dPhi >= phiDim) continue;
-                    for(int dR=-neighbourhood/2; dR < neighbourhood/2 +1; dR++) {
-                        // check we are not outside the image
-                        if(accR+dR < 0 || accR+dR >= rDim) continue;
-                        int neighbourIdx = (accPhi + dPhi + 1) * (rDim + 2) + accR + dR + 1;
-                        if(accumulator[idx] < accumulator[neighbourIdx]) {
-// the current idx is not a local maximum!
-                            bestCandidate=false;
-                            break;
-                        }
-                    }
-                    if(!bestCandidate) break;
-                }
-                if(bestCandidate) {
-// the current idx *is* a local maximum
-                    bestCandidates.add(idx);
-                }
-            }
-        }
-      }
-    }
-  }
-
-
+  
   Collections.sort(bestCandidates, new HoughComparator(accumulator));
   ArrayList<PVector> selection = new ArrayList();
   for (int i = 0; i < bestCandidates.size() && i < nLines; i++) {
@@ -270,15 +219,6 @@ ArrayList<PVector> hough(PImage edgeImg, int nLines)
     float r = (accR - (rDim - 1) * 0.5f) * discretizationStepsR;
     float phi = accPhi * discretizationStepsPhi;
     selection.add(new PVector(r, phi));
-    int x0 = 0;
-    int y0 = (int) (r / sin(phi));
-    int x1 = (int) (r / cos(phi));
-    int y1 = 0;
-    int x2 = edgeImg.width;
-    int y2 = (int) (-cos(phi) / sin(phi) * x2 + r / sin(phi));
-    int y3 = edgeImg.width;
-    int x3 = (int) (-(y3 - r / sin(phi)) * (sin(phi) / cos(phi)));
-    stroke(204, 102, 0);
   }
   return selection;
 }
