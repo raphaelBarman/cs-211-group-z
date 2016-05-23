@@ -15,42 +15,42 @@ PImage houghImg;
 void settings()
 {
     _2D3D = new TwoDThreeD(width,height);
-    size(800, 600);
+    size(1650, 480);
 }
 
 void setup()
 {
 
-    //String[] cameras = Capture.list();
-    //if (cameras.length == 0) {
-    //  println("There are no cameras available for capture.");
-    //  exit();
-    //} else {
-    //  println("Available cameras:");
-    //  for (int i = 0; i < cameras.length; i++) {
-    //      println("index: "+ i+ " = " + cameras[i]);
-    //  }
-    //  cam = new Capture(this, cameras[3]);
-    //  cam.start();
-    //}
+    String[] cameras = Capture.list();
+    if (cameras.length == 0) {
+     println("There are no cameras available for capture.");
+     exit();
+    } else {
+     println("Available cameras:");
+     for (int i = 0; i < cameras.length; i++) {
+         println("index: "+ i+ " = " + cameras[i]);
+     }
+     cam = new Capture(this, cameras[144]);
+     cam.start();
+    }
 
   base_img = loadImage("board4.jpg");
   base_img.resize(600, 450);
   println("width : " + base_img.width + " height: " + base_img.height);
-  noLoop(); // no interactive behaviour: draw() will be called only once.
-  result = ip.fullFilterImage(base_img);
+  //noLoop(); // no interactive behaviour: draw() will be called only once.
+  
 }
 
 void draw()
 {
   //Cam reading stuff
-  //if (cam.available() == true) {
-  //    cam.read();
-  //}
-  //base_img = cam.get();
+  if (cam.available() == true) {
+     cam.read();
+  }
+  base_img = cam.get();
 
   image(base_img, 0, 0);
-
+  result = ip.fullFilterImage(base_img);
   final QuadGraph qg = new QuadGraph();
   final List<PVector> lines = hough(result, 6);
   getIntersections(lines);
@@ -123,13 +123,14 @@ void draw()
       p1 = PVector.sub(c41, ln);
       p2 = PVector.add(c12, ln);
       line(p1.x, p1.y, p2.x, p2.y);
-      image(result, 600+height, 0);
-      image(houghImg, 600, 0);
       
       
-      return; //Only draw the first valid quad
+      break;
+      //return; //Only draw the first valid quad
     }
   }
+  image(result.copy(), 600+height, 0);
+  image(houghImg, 600, 0);
 }
 
 ArrayList<PVector> hough(PImage edgeImg, int nLines)

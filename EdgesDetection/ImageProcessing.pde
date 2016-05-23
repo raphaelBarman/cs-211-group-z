@@ -20,8 +20,8 @@ public final class ImageProcessing{
     PImage front = copy ? base.copy() : base;
     assertFrontBack(base.width,base.height);
     
-    front = inplace_filterHueAndBrightness(front, 87, 140,24,244,46,256);
-    front = inplace_gaussianBlur(front,4,back);
+    front = inplace_filterHueAndBrightness(front, 87, 140,45,255,34,256);
+    front = inplace_gaussianBlur(front,8,back);
     front = inplace_threshold(front,244);
     back = inplace_sobel(front,back);
     

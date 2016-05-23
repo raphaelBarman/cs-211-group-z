@@ -1,6 +1,7 @@
 ArrayList<PVector> cylinders;
 ArrayList<Float> scoreLog;
 Cylinder cylinder;
+ImageProcessing ip;
 Mover mover;
 Mode mode;
 enum Mode {
@@ -24,7 +25,7 @@ HScrollbar hScrollbar;
 
 void settings()
 {
-    size(1024, 768, P3D);
+    size(1024, 768, OPENGL);
 }
 void setup()
 {
@@ -46,7 +47,12 @@ void setup()
     barChart = createGraphics((int)(bottomBar.width*0.7),(int)(bottomBar.height*0.75),P2D);
     frameID = 0;
     hScrollbar = new HScrollbar(bottomBar.width/3.5,height-height/30,bottomBar.width/6,bottomBar.height/10);
+    
+    ip = new ImageProcessing();
+    ip.initCam(144,this);
+    //thread("parralel");
 }
+
 void draw()
 {
     perspective(fov,((float) width)/height,0.1,1000);
@@ -63,6 +69,11 @@ void draw()
 
         posX = Math.min(PI/3.,Math.max(posX,-PI/3));
         posZ = Math.min(PI/3.,Math.max(posZ,-PI/3));
+        //ip.rawRotation();
+        PVector rot = ip.get3DRotation();
+        //println(rot);
+        posX = rot.x;
+        posZ = rot.y;
         pushMatrix();
         rotateX(posX);
         rotateZ(posZ);
@@ -84,8 +95,9 @@ void draw()
         camera(0, viewheight, 0, 0, 0, 0, 0, 0, -1);
         directionalLight(50, 100, 125, 0, -1, 0);
         ambientLight(102, 102, 102);
-        posX = Math.min(PI/3.,Math.max(posX,-PI/3));
-        posZ = Math.min(PI/3.,Math.max(posZ,-PI/3));
+        
+        //posX = Math.min(PI/3.,Math.max(posX,-PI/3));
+        //posZ = Math.min(PI/3.,Math.max(posZ,-PI/3));
         pushMatrix();
         for(PVector vec : cylinders) {
             pushMatrix();
@@ -111,7 +123,9 @@ void draw()
     //image(barChart,width-barChart.width,barChart.height);
     hScrollbar.update();
     hScrollbar.display();
-
+    //if(ip.last_img != null)
+    //image(ip.last_img,0,0);
+    //println(ip.last_img.height );
 }
 
 void drawBottomBar()
@@ -168,7 +182,7 @@ void drawTopView()
     topView.fill(6,101,130,48);
     topView.rect(0,0,topView.width,topView.height);
     PVector p = mover.getLocation();
-    /*if(oldLocation != null) {
+    /*if(oldLocation != null) { //<>//
      topView.fill(6,97,126);
      topView.ellipse((boxWidth/2+oldLocation.x)/boxWidth*topView.width,(boxHeight/2-oldLocation.y)/boxHeight*topView.height,sphereR/boxWidth*topView.width*2,sphereR/boxWidth*topView.width*2);
     }*/
@@ -180,6 +194,10 @@ void drawTopView()
     }
     topView.endDraw();
     oldLocation = p;
+}
+
+void parralel() {
+  ip.run();
 }
 
 void drawBarChart()

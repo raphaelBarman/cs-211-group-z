@@ -1,73 +1,115 @@
 import java.util.*;
+import processing.video.*;
 
-public final class ImageProcessing
+public final class ImageProcessing implements Runnable
 {
     private PImage front = null;
     private PImage back = null;
+    public PImage last_img = null;
+    private PVector angularSpeed = new PVector(0,0,0);
+    private PVector angularPosition = new PVector(0,0,0);
+    private PVector lastRot = new PVector(0,0,0);
     private int minVotes = 80;
     private int baseHue = 117;
     private int hueRadius = 28;
+    private int lastupdate = 0;
     private TwoDThreeD _2D3D = new TwoDThreeD(width,height);
-
-    public PVector get3DRotation(PImage base_img)
-    {
-        PImage result = fullFilterImage(base_img);
-        final QuadGraph qg = new QuadGraph();
-        final List<PVector> lines = hough(result, 6);
-        getIntersections(lines);
-        qg.build(lines, base_img.width, base_img.height);
-        List<int[]> quads = qg.findCycles();
-        quads.sort(new Comparator<int[]>() { //Sort quad by area
-            public int compare(int[] q1, int[] q2) {
-                return Float.compare(
-                           qg.quadArea(lines.get(q1[0]), lines.get(q1[1]), lines.get(q1[2]), lines.get(q1[3])),
-                           qg.quadArea(lines.get(q2[0]), lines.get(q2[1]), lines.get(q2[2]), lines.get(q2[3])));
-            }
+    private Capture cam;
+    private Thread camThread;
+    
+    /*void settings() {
+    }
+    
+    void setup() {
+    }
+    
+    void draw() {
+    }*/
+    
+    public void initCam(int number, PApplet app) {
+       String[] cameras = Capture.list();
+        if (cameras.length == 0) {
+         println("There are no cameras available for capture.");
+         exit();
+        } else {
+         println("Available cameras:");
+         for (int i = 0; i < cameras.length; i++) {
+             println("index: "+ i+ " = " + cameras[i]);
+         }
+         cam = new Capture(app, cameras[number]);
+         cam.start();
         }
-                  );
+        camThread = new Thread(this);
+        //camThread.start();
+    }
+    
+    public PVector get3DRotation() {
+      /*if(cam.available()) {
+        cam.read();
+      }
+      PImage tmp = cam.get();
+       last_img = tmp.copy();*/
+       rawRotation();
+     int time = millis();
+      float delta_t = float(time-lastupdate)/1000;
+      lastupdate = time;
+      //println("time = ", delta_t);
+      float k = 80;
+      PVector delta = PVector.sub(lastRot,angularPosition);
+      delta.mult(k*delta_t);
+      
+      angularSpeed.add(delta);
+      angularSpeed.mult(delta_t);
+      angularPosition.add(angularSpeed);
+      return angularPosition;
+    }
 
-        for (int[] quad : quads) {
-            PVector l1 = lines.get(quad[0]);
-            PVector l2 = lines.get(quad[1]);
-            PVector l3 = lines.get(quad[2]);
-            PVector l4 = lines.get(quad[3]);
-
-            PVector c12 = intersection(l1, l2);
-            PVector c23 = intersection(l2, l3);
-            PVector c34 = intersection(l3, l4);
-            PVector c41 = intersection(l4, l1);
-            if (qg.isConvex(c12, c23, c34, c41) && qg.validArea(c12, c23, c34, c41, base_img.width*base_img.height, 5000) && qg.nonFlatQuad(c12, c23, c34, c41)) {
-                // Choose a random, semi-transparent colour
-                Random random = new Random();
-                fill(color(min(255, random.nextInt(300)),
-                           min(255, random.nextInt(300)),
-                           min(255, random.nextInt(300)), 50));
-                noStroke();
-                fill(255, 128, 0);
-                ellipse(c12.x, c12.y, 10, 10);
-                ellipse(c23.x, c23.y, 10, 10);
-                ellipse(c34.x, c34.y, 10, 10);
-                ellipse(c41.x, c41.y, 10, 10);
-                stroke(255, 128, 0);
-                /*line(c12.x,c12.y,c23.x,c23.y);
-                 line(c23.x,c23.y,c34.x,c34.y);
-                 line(c34.x,c34.y,c41.x,c41.y);
-                 line(c41.x,c41.y,c12.x,c12.y);*/
-
-                PVector[] parray = {c12,c23,c34,c41};
-                List<PVector> final_quad = qg.sortCorners(Arrays.asList(parray));
-                for(PVector p : final_quad) {
-                    println("p = " + p.x + " " + p.y);
+    public void rawRotation() {
+       if(cam.available()) {
+            cam.read();
+          }
+          
+            PImage base_img = cam;
+            //last_img = tmp.copy();
+            PImage result = fullFilterImage(base_img);
+            
+            final QuadGraph qg = new QuadGraph();
+            final List<PVector> lines = hough(result, 6);
+            getIntersections(lines);
+            qg.build(lines, base_img.width, base_img.height);
+            List<int[]> quads = qg.findCycles();
+            quads.sort(new Comparator<int[]>() { //Sort quad by area
+                public int compare(int[] q1, int[] q2) {
+                    return Float.compare(
+                               qg.quadArea(lines.get(q1[0]), lines.get(q1[1]), lines.get(q1[2]), lines.get(q1[3])),
+                               qg.quadArea(lines.get(q2[0]), lines.get(q2[1]), lines.get(q2[2]), lines.get(q2[3])));
                 }
-                PVector rot = _2D3D.get3DRotations(final_quad);
-                //rot.mult(180.0/PI);
-                //println("Rot x = " + rot.x + "\nrot y = " + rot.y +  "\nrot z = " + rot.z);
-                return rot;
-                //image(houghImg, 600, 0);
-                //return; //Only draw the first valid quad
             }
+                      );
+                      
+            
+            for (int[] quad : quads) {
+                PVector l1 = lines.get(quad[0]);
+                PVector l2 = lines.get(quad[1]);
+                PVector l3 = lines.get(quad[2]);
+                PVector l4 = lines.get(quad[3]);
+    
+                PVector c12 = intersection(l1, l2);
+                PVector c23 = intersection(l2, l3);
+                PVector c34 = intersection(l3, l4);
+                PVector c41 = intersection(l4, l1);
+                if (qg.isConvex(c12, c23, c34, c41) && qg.validArea(c12, c23, c34, c41, base_img.width*base_img.height, 5000) && qg.nonFlatQuad(c12, c23, c34, c41)) {
+                    PVector[] parray = {c12,c23,c34,c41};
+                    List<PVector> final_quad = qg.sortCorners(Arrays.asList(parray));
+                    lastRot = _2D3D.get3DRotations(final_quad);
+                }
+            }
+    }
+
+    public void run() {
+        while(true) {
+          rawRotation();
         }
-        return new PVector();
     }
 
     private ArrayList<PVector> hough(PImage edgeImg, int nLines)
@@ -114,14 +156,14 @@ public final class ImageProcessing
             }
         }
 
-        PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
+        /*PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
         for (int i = 0; i < accumulator.length; i++) {
             houghImg.pixels[i] = color(min(255, accumulator[i]));
         }
 
         //Resize the acc to see something
         houghImg.resize(height, height);
-        houghImg.updatePixels();
+        houghImg.updatePixels();*/
 
         ArrayList<Integer> bestCandidates = new ArrayList<Integer>();
         // size of the region we search for a local maximum
@@ -219,11 +261,14 @@ public final class ImageProcessing
         PImage front = copy ? base.copy() : base;
         assertFrontBack(base.width,base.height);
 
-        front = inplace_filterHueAndBrightness(front, 87, 140,24,244,46,256);
-        front = inplace_gaussianBlur(front,4,back);
+        front = inplace_filterHueAndBrightness(front, 87, 140,45,255,34,256);
+        front = inplace_gaussianBlur(front,8,back);
+        last_img = front.copy();
         front = inplace_threshold(front,244);
+        
         back = inplace_sobel(front,back);
-
+        
+        //delay(22);
         return back;
     }
 
@@ -341,7 +386,7 @@ public final class ImageProcessing
                 image.pixels[i] = color(0);
             }
         }
-        image.updatePixels();
+        //image.updatePixels();
         return image;
     }
 
