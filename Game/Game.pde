@@ -1,16 +1,12 @@
 ArrayList<PVector> cylinders;
 ArrayList<Float> scoreLog;
+Stack<State> state_stack;
 Cylinder cylinder;
 ImageProcessing ip;
 Mover mover;
-Mode mode;
-
-enum Mode {
-    NORMAL,
-    PUT
-}
 
 PGraphics bottomBar;
+PGraphics mainFrame;
 
 PGraphics topView;
 PVector oldLocation;
@@ -26,14 +22,14 @@ HScrollbar hScrollbar;
 
 void settings()
 {
-    size(1024, 768, P3D);
+    size(1024, 768, P2D);
 }
 
 void setup()
 {
-    mode = Mode.NORMAL;
+    mainFrame = createGraphics(width,height,P3D);
     noStroke();
-    perspective(fov,((float) width)/height,0.1,1000);
+    //perspective(fov,((float) width)/height,0.1,1000);
     mover = new Mover();
     cylinders = new ArrayList();
     scoreLog = new ArrayList();
@@ -57,77 +53,43 @@ void setup()
 
 void draw()
 {
-    perspective(fov,((float) width)/height,0.1,1000);
+    mainFrame.beginDraw();
+    mainFrame.perspective(fov,((float) width)/height,0.1,1000);
 
-    background(200);
-    fill(255);
-    switch(mode) {
-    case NORMAL:
-        frameID++;
-        beginCamera();
-        camera(0, 90, -90, 0, 0, 0, 0, -1, 0);
-        directionalLight(50, 100, 125, 0, -1, 0);
-        ambientLight(102, 102, 102);
+    mainFrame.background(200);
+    mainFrame.fill(255);
+    frameID++;
+    mainFrame.beginCamera();
+    mainFrame.camera(0, 90, -90, 0, 0, 0, 0, -1, 0);
+    mainFrame.directionalLight(50, 100, 125, 0, -1, 0);
+    mainFrame.ambientLight(102, 102, 102);
 
-        posX = Math.min(PI/3.,Math.max(posX,-PI/3));
-        posZ = Math.min(PI/3.,Math.max(posZ,-PI/3));
-        //ip.rawRotation();
-        //PVector rot = ip.get3DRotation();
-        //println(rot);
-        //posX = rot.x;
-        //posZ = rot.y;
-        pushMatrix();
-        rotateX(posX);
-        rotateZ(posZ);
-        box(boxWidth,1,boxHeight);
-        for(PVector vec : cylinders) {
-            pushMatrix();
-            translate(vec.x,6/2,vec.z);
-            cylinder.display();
-            popMatrix();
-        }
-        mover.physics(cylinders);
-        mover.update(posX,posZ);
-        mover.display();
-        popMatrix();
-        endCamera();
-        break;
-    case PUT:
-        beginCamera();
-        camera(0, viewheight, 0, 0, 0, 0, 0, 0, -1);
-        directionalLight(50, 100, 125, 0, -1, 0);
-        ambientLight(102, 102, 102);
-        
-        //posX = Math.min(PI/3.,Math.max(posX,-PI/3));
-        //posZ = Math.min(PI/3.,Math.max(posZ,-PI/3));
-        pushMatrix();
-        for(PVector vec : cylinders) {
-            pushMatrix();
-            translate(vec.x,0,vec.z);
-            cylinder.display();
-            popMatrix();
-        }
-        box(boxWidth,1,boxHeight);
-        mover.display();
-        popMatrix();
-        endCamera();
-        break;
+    posX = Math.min(PI/3.,Math.max(posX,-PI/3));
+    posZ = Math.min(PI/3.,Math.max(posZ,-PI/3));
+    //ip.rawRotation();
+    //PVector rot = ip.get3DRotation();
+    //println(rot);
+    //posX = rot.x;
+    //posZ = rot.y;
+    mainFrame.pushMatrix();
+    mainFrame.rotateX(posX);
+    mainFrame.rotateZ(posZ);
+    mainFrame.box(boxWidth,1,boxHeight);
+    for(PVector vec : cylinders) {
+        mainFrame.pushMatrix();
+        mainFrame.translate(vec.x,6/2,vec.z);
+        cylinder.display(mainFrame);
+        mainFrame.popMatrix();
     }
-    ortho();
-    camera();
-    noLights();
-    if(frameID % logPeriod == 0) {
-        pushLogs();
-    }
-    drawBottomBar();
-    //drawBarChart();
-    image(bottomBar,0,height-(bottomBar.height));
-    //image(barChart,width-barChart.width,barChart.height);
-    hScrollbar.update();
-    hScrollbar.display();
+    mover.physics(cylinders);
+    mover.update(posX,posZ);
+    mover.display(mainFrame);
+    mainFrame.popMatrix();
+    mainFrame.endCamera();
+    mainFrame.endDraw();
+    image(mainFrame,0,0);
     if(ip.last_img != null)
-    image(ip.last_img,0,0);
-    //println(ip.last_img.height );
+     image(ip.last_img,0,0);
 }
 
 void drawBottomBar()
@@ -244,16 +206,11 @@ void mouseWheel(MouseEvent event)
 
 void keyPressed()
 {
-    if(key == CODED) {
-        if(keyCode == SHIFT) {
-            mode = Mode.PUT;
-        }
-    }
 }
 
 void mouseClicked()
 {
-    if(mode == Mode.PUT) {
+    /*if(mode == Mode.PUT) {
         float x = 2.f*mouseX/width -1;
         float y = 2.f*mouseY/height -1;
         float ratio = 1.f*width/height;
@@ -265,14 +222,14 @@ void mouseClicked()
         if(abs(px) <= boxWidth/2.f-cylinderR && abs(py) <= boxHeight/2.f-cylinderR) {
             cylinders.add(new PVector(px,0,py));
         }
-    }
+    }*/
 }
 
 void keyReleased()
 {
-    if(key == CODED) {
+    /*if(key == CODED) {
         if(keyCode == SHIFT) {
             mode = Mode.NORMAL;
         }
-    }
+    }*/
 }
