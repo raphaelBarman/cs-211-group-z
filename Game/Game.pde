@@ -4,6 +4,7 @@ Cylinder cylinder;
 ImageProcessing ip;
 Mover mover;
 Mode mode;
+
 enum Mode {
     NORMAL,
     PUT
@@ -25,8 +26,9 @@ HScrollbar hScrollbar;
 
 void settings()
 {
-    size(1024, 768, OPENGL);
+    size(1024, 768, P3D);
 }
+
 void setup()
 {
     mode = Mode.NORMAL;
@@ -49,7 +51,7 @@ void setup()
     hScrollbar = new HScrollbar(bottomBar.width/3.5,height-height/30,bottomBar.width/6,bottomBar.height/10);
     
     ip = new ImageProcessing();
-    ip.initCam(144,this);
+    //ip.initCam(144,this);
     //thread("parralel");
 }
 
@@ -70,10 +72,10 @@ void draw()
         posX = Math.min(PI/3.,Math.max(posX,-PI/3));
         posZ = Math.min(PI/3.,Math.max(posZ,-PI/3));
         //ip.rawRotation();
-        PVector rot = ip.get3DRotation();
+        //PVector rot = ip.get3DRotation();
         //println(rot);
-        posX = rot.x;
-        posZ = rot.y;
+        //posX = rot.x;
+        //posZ = rot.y;
         pushMatrix();
         rotateX(posX);
         rotateZ(posZ);
@@ -123,8 +125,8 @@ void draw()
     //image(barChart,width-barChart.width,barChart.height);
     hScrollbar.update();
     hScrollbar.display();
-    //if(ip.last_img != null)
-    //image(ip.last_img,0,0);
+    if(ip.last_img != null)
+    image(ip.last_img,0,0);
     //println(ip.last_img.height );
 }
 

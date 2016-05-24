@@ -36,11 +36,11 @@ public final class ImageProcessing implements Runnable
          for (int i = 0; i < cameras.length; i++) {
              println("index: "+ i+ " = " + cameras[i]);
          }
-         cam = new Capture(app, cameras[number]);
+         //cam = new Capture(app, cameras[number]);
          cam.start();
         }
         camThread = new Thread(this);
-        //camThread.start();
+        camThread.start();
     }
     
     public PVector get3DRotation() {
