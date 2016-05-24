@@ -74,10 +74,10 @@ class Mover
         return (velocity.mag() > 1) ? Math.round(velocity.mag()*1000.0)/1000.0 : 0.0;
     }
 
-    void display()
+    void display(PGraphics disp)
     {
-        noStroke();
-        translate(location.x,location.y,location.z);
-        sphere(sphereR);
+        disp.noStroke();
+        disp.translate(location.x,location.y,location.z);
+        disp.sphere(sphereR);
     }
 }

@@ -44,13 +44,13 @@ class Cylinder
 
 
 
-    void display()
+    void display(PGraphics disp)
     {
-        noStroke();
+        disp.noStroke();
         //lights();/<>//
-        shape(top);
-        shape(side);
-        shape(bottom);
+        disp.shape(top);
+        disp.shape(side);
+        disp.shape(bottom);
     }
 
 };

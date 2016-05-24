@@ -10,6 +10,7 @@ enum Mode {
 }
 
 PGraphics bottomBar;
+PGraphics mainFrame;
 
 PGraphics topView;
 PVector oldLocation;
@@ -30,6 +31,7 @@ void settings()
 void setup()
 {
     mode = Mode.NORMAL;
+    mainFrame = createGraphics(width,height,P3D);
     noStroke();
     perspective(fov,((float) width)/height,0.1,1000);
     mover = new Mover();
@@ -55,17 +57,16 @@ void setup()
 
 void draw()
 {
-    perspective(fov,((float) width)/height,0.1,1000);
+    mainFrame.beginDraw();
+    mainFrame.perspective(fov,((float) width)/height,0.1,1000);
 
-    background(200);
-    fill(255);
-    switch(mode) {
-    case NORMAL:
+    mainFrame.background(200);
+    mainFrame.fill(255);
         frameID++;
-        beginCamera();
-        camera(0, 90, -90, 0, 0, 0, 0, -1, 0);
-        directionalLight(50, 100, 125, 0, -1, 0);
-        ambientLight(102, 102, 102);
+        mainFrame.beginCamera();
+        mainFrame.camera(0, 90, -90, 0, 0, 0, 0, -1, 0);
+        mainFrame.directionalLight(50, 100, 125, 0, -1, 0);
+        mainFrame.ambientLight(102, 102, 102);
 
         posX = Math.min(PI/3.,Math.max(posX,-PI/3));
         posZ = Math.min(PI/3.,Math.max(posZ,-PI/3));
@@ -74,57 +75,25 @@ void draw()
         //println(rot);
         posX = rot.x;
         posZ = rot.y;
-        pushMatrix();
-        rotateX(posX);
-        rotateZ(posZ);
-        box(boxWidth,1,boxHeight);
+        mainFrame.pushMatrix();
+        mainFrame.rotateX(posX);
+        mainFrame.rotateZ(posZ);
+        mainFrame.box(boxWidth,1,boxHeight);
         for(PVector vec : cylinders) {
-            pushMatrix();
-            translate(vec.x,6/2,vec.z);
-            cylinder.display();
-            popMatrix();
+            mainFrame.pushMatrix();
+            mainFrame.translate(vec.x,6/2,vec.z);
+            cylinder.display(mainFrame);
+            mainFrame.popMatrix();
         }
         mover.physics(cylinders);
         mover.update(posX,posZ);
-        mover.display();
-        popMatrix();
-        endCamera();
-        break;
-    case PUT:
-        beginCamera();
-        camera(0, viewheight, 0, 0, 0, 0, 0, 0, -1);
-        directionalLight(50, 100, 125, 0, -1, 0);
-        ambientLight(102, 102, 102);
-        
-        //posX = Math.min(PI/3.,Math.max(posX,-PI/3));
-        //posZ = Math.min(PI/3.,Math.max(posZ,-PI/3));
-        pushMatrix();
-        for(PVector vec : cylinders) {
-            pushMatrix();
-            translate(vec.x,0,vec.z);
-            cylinder.display();
-            popMatrix();
-        }
-        box(boxWidth,1,boxHeight);
-        mover.display();
-        popMatrix();
-        endCamera();
-        break;
-    }
-    ortho();
-    camera();
-    noLights();
-    if(frameID % logPeriod == 0) {
-        pushLogs();
-    }
-    drawBottomBar();
-    //drawBarChart();
-    image(bottomBar,0,height-(bottomBar.height));
-    //image(barChart,width-barChart.width,barChart.height);
-    hScrollbar.update();
-    hScrollbar.display();
-    //if(ip.last_img != null)
-    //image(ip.last_img,0,0);
+        mover.display(mainFrame);
+        mainFrame.popMatrix();
+        mainFrame.endCamera();
+    mainFrame.endDraw();
+    image(mainFrame,0,0);
+    if(ip.last_img != null)
+     image(ip.last_img,0,0);
     //println(ip.last_img.height );
 }
 
