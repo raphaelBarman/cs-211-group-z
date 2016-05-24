@@ -32,20 +32,20 @@ class Mover
     void checkEdges()
     {
         if (location.x > boxWidth/2f) {
-            updateScore(- getCurrentSpeed());
+            //updateScore(- getCurrentSpeed());
             location.x = boxWidth/2f;
             velocity.x = velocity.x * (-1);
         } else if (location.x < -boxWidth/2f) {
-            updateScore(- getCurrentSpeed());
+            //updateScore(- getCurrentSpeed());
             location.x = -boxWidth/2f;
             velocity.x = velocity.x * (-1);
         }
         if (location.z > boxHeight/2f) {
-            updateScore(- getCurrentSpeed());
+            //updateScore(- getCurrentSpeed());
             location.z = boxHeight/2f;
             velocity.z = velocity.z * (-1);
         } else if (location.z < -boxHeight/2f) {
-            updateScore(- getCurrentSpeed());
+            //updateScore(- getCurrentSpeed());
             location.z = -boxHeight/2f;
             velocity.z = velocity.z * (-1);
         }
@@ -54,15 +54,15 @@ class Mover
     void physics(List<PVector> cylinders)
     {
         checkEdges();
-        for(PVector p : cylinders) {
+        /*for(PVector p : cylinders) {
             PVector flatLocation = new PVector(location.x,0,location.z);
             if(ShapeUtils.collideWith(flatLocation,p,cylinderR,sphereR)) {
-                updateScore(getCurrentSpeed());
+                //updateScore(getCurrentSpeed());
                 flatLocation = ShapeUtils.extractFromCylinder(flatLocation,p,sphereR,cylinderR);
                 location = new PVector(flatLocation.x,location.y,flatLocation.z);
                 velocity = ShapeUtils.cylinderBounce(velocity,flatLocation,p);
             }
-        }
+        }*/
     }
 
     PVector getLocation()
