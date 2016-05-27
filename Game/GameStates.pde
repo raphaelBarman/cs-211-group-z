@@ -5,6 +5,11 @@ public interface State{
   public void on_end(PApplet pa);
   public void on_pause(PApplet pa);
   public void on_resume(PApplet pa);
+  public void on_mousewheel(MouseEvent event);
+  public void on_mouseDragged(MouseEvent event);
+  public void on_mouseClicked(MouseEvent event);
+  public void on_keyPressed(KeyEvent event);
+  public void on_keyReleased(KeyEvent event);
 }
 
 public class GameState implements State {
@@ -64,6 +69,7 @@ public class GameState implements State {
   
   public void on_end(PApplet pa)
   {
+    
   }
   
   public void on_pause(PApplet pa)
@@ -73,6 +79,12 @@ public class GameState implements State {
   public void on_resume(PApplet pa)
   {
   }
+  
+   public void on_mousewheel(MouseEvent event){}
+  public void on_mouseDragged(MouseEvent event){}
+  public void on_mouseClicked(MouseEvent event){}
+  public void on_keyPressed(KeyEvent event){}
+  public void on_keyReleased(KeyEvent event){}
 }
 
 public class MenuState implements State {
@@ -104,4 +116,10 @@ public class MenuState implements State {
   {
     
   }
+  
+  public void on_mousewheel(MouseEvent event){}
+  public void on_mouseDragged(MouseEvent event){}
+  public void on_mouseClicked(MouseEvent event){}
+  public void on_keyPressed(KeyEvent event){}
+  public void on_keyReleased(KeyEvent event){}
 }

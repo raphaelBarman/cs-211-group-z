@@ -14,12 +14,38 @@ void setup()
     mainFrame = createGraphics(width,height,P3D);
     noStroke();
     state_stack = new Stack<State>();
-    state_stack.push(new GameState());
+    push_state(new GameState());
     frameID = 0;
     
     ip = new ImageProcessing();
     //ip.initCam(144,this);
     //thread("parralel");
+}
+
+void push_state(State s) {
+  
+  if(!state_stack.empty()) {
+    State os = state_stack.peek();
+    os.on_pause(this);
+  }
+  s.on_begin(mainFrame,this);
+  state_stack.push(s);
+}
+
+void pop_state() {
+  if(!state_stack.empty()) {
+    State s = state_stack.pop();
+    s.on_end(this);
+  }
+  if(!state_stack.empty()) {
+    State s = state_stack.peek();
+    s.on_resume(this);
+  }
+}
+
+void replace_state(State s) {
+  pop_state();
+  push_state(s);
 }
 
 void draw()
@@ -41,7 +67,7 @@ void draw()
      image(ip.last_img,0,0);*/
 } //<>//
 
-void mouseDragged()
+void mouseDragged(MouseEvent event)
 {
     posX -= (mouseY - pmouseY)*speed;
     posZ -= (mouseX - pmouseX)*speed;
