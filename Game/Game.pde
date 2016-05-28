@@ -6,104 +6,90 @@ long frameID;
 
 void settings()
 {
-    size(1024, 768, P2D);
+    size(1920, 1080, P2D);
 }
 
 void setup()
 {
+    ip = new ImageProcessing();
     mainFrame = createGraphics(width,height,P3D);
+    mainFrame. textureWrap(REPEAT);
+    mainFrame.textureMode(NORMAL);
     noStroke();
     state_stack = new Stack<State>();
-    push_state(new GameState());
+    push_state(new GameState(GameMode.LEGACY));
     frameID = 0;
-    
-    ip = new ImageProcessing();
-    //ip.initCam(144,this);
-    //thread("parralel");
 }
 
-void push_state(State s) {
-  
-  if(!state_stack.empty()) {
-    State os = state_stack.peek();
-    os.on_pause(this);
-  }
-  s.on_begin(mainFrame,this);
-  state_stack.push(s);
+void push_state(State s)
+{
+    if(!state_stack.empty()) {
+        State os = state_stack.peek();
+        os.on_pause(this);
+    }
+    s.on_begin(mainFrame,this);
+    state_stack.push(s);
 }
 
-void pop_state() {
-  if(!state_stack.empty()) {
-    State s = state_stack.pop();
-    s.on_end(this);
-  }
-  if(!state_stack.empty()) {
-    State s = state_stack.peek();
-    s.on_resume(this);
-  }
+void pop_state()
+{
+    if(!state_stack.empty()) {
+        State s = state_stack.pop();
+        s.on_end(this);
+    }
+    if(!state_stack.empty()) {
+        State s = state_stack.peek();
+        s.on_resume(this); //<>// //<>//
+    }
 }
 
-void replace_state(State s) {
-  pop_state();
-  push_state(s);
+void replace_state(State s)
+{
+    pop_state();
+    push_state(s);
 }
 
 void draw()
 {
     if(state_stack.empty())
-      return;
-      
-      
+        return;
+
     State s = state_stack.peek();
-    
     s.on_update(0.017,this);
     mainFrame.beginDraw();
     s.on_draw(mainFrame,this);
     mainFrame.endDraw();
-    
-    
+
     image(mainFrame,0,0);
-    /*if(ip.last_img != null)
-     image(ip.last_img,0,0);*/
-} //<>//
+}
 
 void mouseDragged(MouseEvent event)
 {
-    posX -= (mouseY - pmouseY)*speed;
-    posZ -= (mouseX - pmouseX)*speed;
+    if(!state_stack.empty())
+        state_stack.peek().on_mouseDragged(event);
 }
 
 void mouseWheel(MouseEvent event)
 {
-    speed *= Math.pow(2,-event.getCount());
+    if(!state_stack.empty())
+        state_stack.peek().on_mouseWheel(event);
+
 }
 
-void keyPressed()
+void keyPressed(KeyEvent e)
 {
+    if(!state_stack.empty())
+        state_stack.peek().on_keyPressed(e);
 }
 
-void mouseClicked()
+void mouseClicked(MouseEvent e)
 {
-    /*if(mode == Mode.PUT) {
-        float x = 2.f*mouseX/width -1;
-        float y = 2.f*mouseY/height -1;
-        float ratio = 1.f*width/height;
-        float whh = viewheight*tan(fov/2);
-        float whw = whh*ratio;
-
-        float px = x*whw;
-        float py = -y*whh;
-        if(abs(px) <= boxWidth/2.f-cylinderR && abs(py) <= boxHeight/2.f-cylinderR) {
-            cylinders.add(new PVector(px,0,py));
-        }
-    }*/
+    if(!state_stack.empty())
+        state_stack.peek().on_mouseClicked(e);
 }
 
-void keyReleased()
+void keyReleased(KeyEvent e)
 {
-    /*if(key == CODED) {
-        if(keyCode == SHIFT) {
-            mode = Mode.NORMAL;
-        }
-    }*/
+    if(!state_stack.empty())
+        state_stack.peek().on_keyReleased(e);
 }

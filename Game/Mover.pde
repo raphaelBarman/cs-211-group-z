@@ -5,11 +5,23 @@ class Mover
     final float TIMECONSTANT = 1f/24;
     PVector location;
     PVector velocity;
+    PShape shadow;
 
     Mover()
     {
-        location = new PVector(0,2.5,0);
+        location = new PVector(0,sphereR,0);
         velocity = new PVector(0,0,0);
+        shadow = createShape();
+        shadow.beginShape();
+        shadow.texture(loadImage("textures/rndshadow.png"));
+        shadow.normal(0,1,0);
+        float dim = 32;
+        float d = sphereR*1.2;
+        shadow.vertex(-d, 0,  d, 0, 0);
+        shadow.vertex( d,  0,  d, dim, 0);
+        shadow.vertex( d,  0, -d, dim,dim);
+        shadow.vertex(-d,  0, -d, 0, dim);
+        shadow.endShape();
     }
 
     void update(float angleX, float angleZ)
@@ -54,7 +66,7 @@ class Mover
     void physics(List<PVector> cylinders)
     {
         checkEdges();
-        /*for(PVector p : cylinders) {
+        for(PVector p : cylinders) {
             PVector flatLocation = new PVector(location.x,0,location.z);
             if(ShapeUtils.collideWith(flatLocation,p,cylinderR,sphereR)) {
                 //updateScore(getCurrentSpeed());
@@ -62,7 +74,7 @@ class Mover
                 location = new PVector(flatLocation.x,location.y,flatLocation.z);
                 velocity = ShapeUtils.cylinderBounce(velocity,flatLocation,p);
             }
-        }*/
+        }
     }
 
     PVector getLocation()
@@ -77,7 +89,9 @@ class Mover
     void display(PGraphics disp)
     {
         disp.noStroke();
-        disp.translate(location.x,location.y,location.z);
+        disp.translate(location.x,0.01,location.z);
+        disp.shape(shadow);
+        disp.translate(0,location.y,0);
         disp.sphere(sphereR);
     }
 }

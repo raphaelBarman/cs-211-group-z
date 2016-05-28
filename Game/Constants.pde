@@ -1,6 +1,5 @@
 float speed = 0.01;
-float posX = 0;
-float posZ = 0;
+
 float boxWidth = 50;
 float boxHeight = 50;
 float viewheight = 105;

@@ -1,0 +1,44 @@
+# Blender MTL File: 'lowpolybush.blend'
+# Material Count: 4
+
+newmtl Blocks
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd textures/blocks.jpg
+
+newmtl Bushes01
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 0
+map_Kd textures/Foliage_Bushes01_DiffuseMask.tga
+map_d textures/Foliage_Bushes01_DiffuseMask.tga
+
+newmtl Dirt
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd textures/dirt.jpg
+
+newmtl Shadow
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 1
+map_Kd textures/linshadow.png
+map_d textures/linshadow.png
