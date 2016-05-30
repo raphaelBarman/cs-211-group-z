@@ -1,5 +1,6 @@
 float speed = 0.01;
-
+String game_name = "Chess Roll";
+String used_cam;
 float boxWidth = 50;
 float boxHeight = 50;
 float viewheight = 105;

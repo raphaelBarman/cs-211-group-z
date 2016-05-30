@@ -10,8 +10,8 @@ public final class ImageProcessing implements Runnable
     private PVector angularPosition = new PVector(0,0,0);
     private PVector lastRot = new PVector(0,0,0);
     private int minVotes = 80;
-    private int baseHue = 117;
-    private int hueRadius = 28;
+    public int baseHue = 113;
+    public int hueRadius = 26;
     private int lastupdate = 0;
     private TwoDThreeD _2D3D = new TwoDThreeD(width,height);
     private Capture cam;
@@ -257,6 +257,10 @@ public final class ImageProcessing implements Runnable
         return fullFilterImage(base,true);
     }
 
+    public PImage primaryFilter(PImage base) {
+      return inplace_filterHueAndBrightness(base, baseHue-hueRadius, baseHue+hueRadius,45,255,34,256);
+    }
+
     /**
     *  @brief filter all image using front and back buffer and inplace tranform to avoid creating to much images
     */
@@ -265,13 +269,12 @@ public final class ImageProcessing implements Runnable
         PImage front = copy ? base.copy() : base;
         assertFrontBack(base.width,base.height);
 
-        front = inplace_filterHueAndBrightness(front, 87, 140,45,255,34,256);
+        front = primaryFilter(front);
         front = inplace_gaussianBlur(front,8,back);
-
         front = inplace_threshold(front,244);
-
         back = inplace_sobel(front,back);
         last_img = back.copy();
+        //image(last_img,0,0);
         //delay(22);
         return back;
     }
@@ -406,6 +409,32 @@ public final class ImageProcessing implements Runnable
             }
         }
         return image;
+    }
+    
+    public color mean_color(PImage img, int l,int t, int w, int h) {
+      //println(l + " " + t + " " + w + " " + h);
+      if(img == null) { //<>//
+        return color(0,0,0);
+      }
+      float rtotal = 0.0;
+      float gtotal = 0.0;
+      float btotal = 0.0;
+      for(int i = l; i < l+w; i++) {
+        for(int j = t; j < t+h; j++) {
+                int loc = i + img.width*j;
+                rtotal += (red(img.pixels[loc]));
+                gtotal += (green(img.pixels[loc]));
+                btotal += (blue(img.pixels[loc]));
+        }
+      }
+      float total = w*h;
+      rtotal /= total;
+      gtotal /= total;
+      btotal /= total;
+      rtotal = constrain(rtotal, 0, 255);
+        gtotal = constrain(gtotal, 0, 255);
+        btotal = constrain(btotal, 0, 255);
+      return color(rtotal,gtotal,btotal);
     }
 
     public PImage inplace_gaussianBlur(PImage img, int kernelSize, PImage result)

@@ -88,10 +88,13 @@ class Mover
 
     void display(PGraphics disp)
     {
+        disp.pushMatrix();
         disp.noStroke();
+        
         disp.translate(location.x,0.01,location.z);
         disp.shape(shadow);
         disp.translate(0,location.y,0);
         disp.sphere(sphereR);
+        disp.popMatrix();
     }
 }

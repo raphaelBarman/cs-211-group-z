@@ -17,7 +17,7 @@ void setup()
     mainFrame.textureMode(NORMAL);
     noStroke();
     state_stack = new Stack<State>();
-    push_state(new GameState(GameMode.LEGACY));
+    push_state(new MenuState());
     frameID = 0;
 }
 
@@ -27,18 +27,20 @@ void push_state(State s)
         State os = state_stack.peek();
         os.on_pause(this);
     }
-    s.on_begin(mainFrame,this);
     state_stack.push(s);
+    s.on_begin(mainFrame,this);
 }
 
 void pop_state()
 {
     if(!state_stack.empty()) {
         State s = state_stack.pop();
+        println("Poping state " + s);
         s.on_end(this);
     }
     if(!state_stack.empty()) {
         State s = state_stack.peek();
+        println("resume state " + s);
         s.on_resume(this); //<>// //<>//
     }
 }
