@@ -17,7 +17,7 @@ void setup()
     mainFrame.textureMode(NORMAL);
     noStroke();
     state_stack = new Stack<State>();
-    push_state(new MenuState());
+    push_state(new GameState(GameMode.TANGIBLE));
     frameID = 0;
 }
 
@@ -63,6 +63,17 @@ void draw()
     mainFrame.endDraw();
 
     image(mainFrame,0,0);
+    if(ip.last_img != null) {
+            println("bite" + ip.last_img.width);
+            beginCamera();
+            ortho();
+            image(ip.last_img,0,0);
+            endCamera();
+   }
+}
+
+void movieEvent(Movie m) {
+  m.read();
 }
 
 void mouseDragged(MouseEvent event)

@@ -120,9 +120,7 @@ public class GameState implements State
         default:
             break;
         }
-        if(ip.last_img != null) {
-            image(ip.last_img,0,0);
-        }
+        
     }
 
     public void on_begin(PGraphics pg,PApplet pa)

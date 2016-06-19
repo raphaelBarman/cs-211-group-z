@@ -14,7 +14,7 @@ public final class ImageProcessing implements Runnable
     public int hueRadius = 26;
     private int lastupdate = 0;
     private TwoDThreeD _2D3D = new TwoDThreeD(width,height);
-    private Capture cam;
+    private Movie cam;
     private Thread camThread;
 
     /*void settings() {
@@ -28,20 +28,12 @@ public final class ImageProcessing implements Runnable
 
     public void initCam(int number, PApplet app)
     {
-        String[] cameras = Capture.list();
-        if (cameras.length == 0) {
-            println("There are no cameras available for capture.");
-            exit();
-        } else {
-            println("Available cameras:");
-            for (int i = 0; i < cameras.length; i++) {
-                println("index: "+ i+ " = " + cameras[i]);
-            }
-            cam = new Capture(app, cameras[144]);
-            cam.start();
-        }
-        camThread = new Thread(this);
-        camThread.start();
+      cam = new Movie(app,"testvideo.mp4");
+      println("duration = " + cam.duration());
+      //cam.start();
+      cam.loop();
+      /*camThread = new Thread(this);
+      camThread.start();*/
     }
 
     public PVector get3DRotation()
@@ -50,8 +42,11 @@ public final class ImageProcessing implements Runnable
           cam.read();
         }
         PImage tmp = cam.get();
-         last_img = tmp.copy();*/
-        //rawRotation();
+         last_img = tmp.copy();*/ 
+        rawRotation();
+        
+        println("pipi");
+        
         int time = millis();
         float delta_t = float(time-lastupdate)/1000;
         lastupdate = time;
@@ -68,11 +63,15 @@ public final class ImageProcessing implements Runnable
 
     public void rawRotation()
     {
-        if(cam.available()) {
+        //if(cam.available()) {
             cam.read();
-        }
+        //}
 
-        PImage base_img = cam;
+        println("caca");
+
+        PImage base_img = cam.get();
+        base_img.loadPixels();
+        println("base width = " + base_img.width);
         //last_img = tmp.copy();
         PImage result = fullFilterImage(base_img);
 
@@ -113,6 +112,10 @@ public final class ImageProcessing implements Runnable
     {
         while(true) {
             rawRotation();
+            try {
+            Thread.sleep(10);
+            } catch(Exception e) {
+            }
         }
     }
 
@@ -269,11 +272,13 @@ public final class ImageProcessing implements Runnable
         PImage front = copy ? base.copy() : base;
         assertFrontBack(base.width,base.height);
 
+        last_img = front;
+
         front = primaryFilter(front);
         front = inplace_gaussianBlur(front,8,back);
         front = inplace_threshold(front,244);
         back = inplace_sobel(front,back);
-        last_img = back.copy();
+        //last_img = back.copy();
         //image(last_img,0,0);
         //delay(22);
         return back;
