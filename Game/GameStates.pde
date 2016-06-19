@@ -417,7 +417,7 @@ public class CalibrateState implements State
 
     public void on_end(PApplet pa)
     {
-
+      cam.stop();
     }
 
     public void on_pause(PApplet pa)
