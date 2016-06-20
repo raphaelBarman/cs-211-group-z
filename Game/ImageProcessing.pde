@@ -51,7 +51,7 @@ public final class ImageProcessing implements Runnable
         float delta_t = float(time-lastupdate)/1000;
         lastupdate = time;
         //println("time = ", delta_t);
-        float k = 100;
+        float k = 400;
         PVector delta = PVector.sub(lastRot,angularPosition);
         delta.mult(k*delta_t);
         angularSpeed.add(delta);
@@ -113,10 +113,6 @@ public final class ImageProcessing implements Runnable
     {
         while(true) {
             rawRotation();
-            try {
-            Thread.sleep(10);
-            } catch(Exception e) {
-            }
         }
     }
 
