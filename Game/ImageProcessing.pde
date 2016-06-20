@@ -100,7 +100,7 @@ public final class ImageProcessing implements Runnable
             PVector c23 = intersection(l2, l3);
             PVector c34 = intersection(l3, l4);
             PVector c41 = intersection(l4, l1);
-            if (qg.isConvex(c12, c23, c34, c41) && qg.validArea(c12, c23, c34, c41, base_img.width*base_img.height, 5000) && qg.nonFlatQuad(c12, c23, c34, c41)) {
+            if (qg.isConvex(c12, c23, c34, c41) && qg.validArea(c12, c23, c34, c41, base_img.width*base_img.height, 2000) && qg.nonFlatQuad(c12, c23, c34, c41)) {
                 PVector[] parray = {c12,c23,c34,c41};
                 List<PVector> final_quad = qg.sortCorners(Arrays.asList(parray));
                 lastRot = _2D3D.get3DRotations(final_quad);
