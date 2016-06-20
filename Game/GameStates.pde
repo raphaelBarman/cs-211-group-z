@@ -32,7 +32,9 @@ public class GameState implements State
     private Mover mover;
     private float posX = 0;
     private float posZ = 0;
+    private float posY = 0;
     private color back_col = color(200,222,240);
+    private color point_col = color(200,30,30);
 
     public GameState(GameMode mode)
     {
@@ -47,6 +49,7 @@ public class GameState implements State
             PVector rot = ip.get3DRotation();
             posX = rot.x;
             posZ = rot.y;
+            posY = rot.z;
         }
         switch(mode) {
         case NORMAL:
@@ -81,12 +84,13 @@ public class GameState implements State
         pg.background(back_col);
         frameID++;
         pg.beginCamera();
-        pg.camera(0, 90, -90, -2*posZ, 0, -2*posX, 0, -1, 0);
-        posX = Math.min(PI/3.,Math.max(posX,-PI/3));
-        posZ = Math.min(PI/3.,Math.max(posZ,-PI/3));
+        pg.camera(0, 90, 0, -2*posZ, 0, -2*posX, 0, 0, -1);
+        //posX = Math.min(PI/3.,Math.max(posX,-PI/3));
+        //posZ = Math.min(PI/3.,Math.max(posZ,-PI/3));
         pg.pushMatrix();
-        pg.rotateX(posX);
+        pg.rotateX(-posX);
         pg.rotateZ(posZ);
+        pg.rotateY(posY);
         draw_scene(pg,pa);
         pg.popMatrix();
         pg.endCamera();
@@ -120,13 +124,17 @@ public class GameState implements State
         default:
             break;
         }
-        if(ip.last_img != null) {
+        if(ip.last_img != null && ip.trueQuad != null) {
               pg.resetMatrix();
               pg.noLights();
               pg.ortho();
               pg.translate(-width/2+20,-height/2+20);
               pg.scale(0.5);
               pg.image(ip.last_img,0,0);
+              for(PVector p : ip.trueQuad) {
+                pg.fill(point_col);
+                pg.ellipse(p.x, p.y, 40, 40);
+              }
         }
     }
 

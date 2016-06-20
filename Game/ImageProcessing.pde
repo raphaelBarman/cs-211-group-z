@@ -15,6 +15,7 @@ public final class ImageProcessing implements Runnable
     private int lastupdate = 0;
     private TwoDThreeD _2D3D = new TwoDThreeD(width,height);
     private Movie cam;
+    private List<PVector> trueQuad;
     private Thread camThread;
 
     /*void settings() {
@@ -50,10 +51,9 @@ public final class ImageProcessing implements Runnable
         float delta_t = float(time-lastupdate)/1000;
         lastupdate = time;
         //println("time = ", delta_t);
-        float k = 80;
+        float k = 100;
         PVector delta = PVector.sub(lastRot,angularPosition);
         delta.mult(k*delta_t);
-
         angularSpeed.add(delta);
         angularSpeed.mult(delta_t);
         angularPosition.add(angularSpeed);
@@ -96,9 +96,14 @@ public final class ImageProcessing implements Runnable
             PVector c23 = intersection(l2, l3);
             PVector c34 = intersection(l3, l4);
             PVector c41 = intersection(l4, l1);
-            if (qg.isConvex(c12, c23, c34, c41) && qg.validArea(c12, c23, c34, c41, base_img.width*base_img.height, 2000) && qg.nonFlatQuad(c12, c23, c34, c41)) {
-                PVector[] parray = {c12,c23,c34,c41};
-                List<PVector> final_quad = qg.sortCorners(Arrays.asList(parray));
+            PVector[] parray = {c12,c23,c34,c41};
+            List<PVector> final_quad = qg.sortCorners(Arrays.asList(parray));
+            
+            /*println("convex = " + qg.isConvex(c12, c23, c34, c41) + 
+                "\nvalidArea = " + qg.validArea(c12, c23, c34, c41, base_img.width*base_img.height, 500) + 
+                "\nnonFlat = " + qg.nonFlatQuad(c12, c23, c34, c41));*/
+            if (qg.isConvex(c12, c23, c34, c41) && qg.validArea(c12, c23, c34, c41, base_img.width*base_img.height, 500) && qg.nonFlatQuad(c12, c23, c34, c41)) {    
+                trueQuad = final_quad;
                 lastRot = _2D3D.get3DRotations(final_quad);
             }
         }
@@ -268,13 +273,13 @@ public final class ImageProcessing implements Runnable
         PImage front = copy ? base.copy() : base;
         assertFrontBack(base.width,base.height);
 
-        //last_img = front.copy();
+        last_img = front.copy();
 
         front = primaryFilter(front);
         front = inplace_gaussianBlur(front,8,back);
         front = inplace_threshold(front,244);
         back = inplace_sobel(front,back);
-        last_img = back.copy();
+        //last_img = back.copy();
         //image(last_img,0,0);
         //delay(22);
         return back;

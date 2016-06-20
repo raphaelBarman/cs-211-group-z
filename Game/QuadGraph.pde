@@ -277,7 +277,7 @@ class QuadGraph
     {
 
         // cos(70deg) ~= 0.3
-        float min_cos = 0.5f;
+        float min_cos = 0.85f;
 
         PVector v21= PVector.sub(c1, c2);
         PVector v32= PVector.sub(c2, c3);
