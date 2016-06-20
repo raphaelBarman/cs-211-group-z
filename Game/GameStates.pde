@@ -32,6 +32,7 @@ public class GameState implements State
     private Mover mover;
     private float posX = 0;
     private float posZ = 0;
+    private color back_col = color(200,222,240);
 
     public GameState(GameMode mode)
     {
@@ -62,7 +63,6 @@ public class GameState implements State
 
         pg.pushMatrix();
         pg.translate(0,-0.5,0);
-        //pg.box(boxWidth,1,boxHeight);
         fl.display(pg);
         pg.popMatrix();
         
@@ -78,8 +78,7 @@ public class GameState implements State
 
     public void normal_draw(PGraphics pg, PApplet pa)
     {
-        pg.background(color(200,222,240));
-        pg.fill(255);
+        pg.background(back_col);
         frameID++;
         pg.beginCamera();
         pg.camera(0, 90, -90, -2*posZ, 0, -2*posX, 0, -1, 0);
@@ -95,7 +94,7 @@ public class GameState implements State
 
     public void put_draw(PGraphics pg, PApplet pa)
     {
-        pg.background(200);
+        pg.background(back_col);
         pg.beginCamera();
         pg.camera(0, viewheight, 0, 0, 0, 0, 0, 0, -1);
         posX = Math.min(PI/3.,Math.max(posX,-PI/3));
@@ -108,6 +107,7 @@ public class GameState implements State
     {
 
         pg.perspective(fov,((float) width)/height,1,1000);
+        //pg.lights();
         pg.directionalLight(253, 220, 200, -1, -1, 1);
         pg.ambientLight(102, 102, 102);
         switch(mode) {
@@ -120,7 +120,14 @@ public class GameState implements State
         default:
             break;
         }
-        
+        if(ip.last_img != null) {
+              pg.resetMatrix();
+              pg.noLights();
+              pg.ortho();
+              pg.translate(-width/2+20,-height/2+20);
+              pg.scale(0.5);
+              pg.image(ip.last_img,0,0);
+        }
     }
 
     public void on_begin(PGraphics pg,PApplet pa)

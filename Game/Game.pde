@@ -6,7 +6,7 @@ long frameID;
 
 void settings()
 {
-    size(1920, 1080, P2D);
+    size(1280, 720, P2D);
 }
 
 void setup()
@@ -63,13 +63,6 @@ void draw()
     mainFrame.endDraw();
 
     image(mainFrame,0,0);
-    if(ip.last_img != null) {
-            println("bite" + ip.last_img.width);
-            beginCamera();
-            ortho();
-            image(ip.last_img,0,0);
-            endCamera();
-   }
 }
 
 void movieEvent(Movie m) {

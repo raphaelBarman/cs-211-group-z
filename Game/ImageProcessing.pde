@@ -32,8 +32,8 @@ public final class ImageProcessing implements Runnable
       println("duration = " + cam.duration());
       //cam.start();
       cam.loop();
-      /*camThread = new Thread(this);
-      camThread.start();*/
+      camThread = new Thread(this);
+      camThread.start();
     }
 
     public PVector get3DRotation()
@@ -43,9 +43,8 @@ public final class ImageProcessing implements Runnable
         }
         PImage tmp = cam.get();
          last_img = tmp.copy();*/ 
-        rawRotation();
-        
-        println("pipi");
+        //rawRotation();
+       
         
         int time = millis();
         float delta_t = float(time-lastupdate)/1000;
@@ -67,11 +66,8 @@ public final class ImageProcessing implements Runnable
             cam.read();
         //}
 
-        println("caca");
-
         PImage base_img = cam.get();
         base_img.loadPixels();
-        println("base width = " + base_img.width);
         //last_img = tmp.copy();
         PImage result = fullFilterImage(base_img);
 
@@ -272,13 +268,13 @@ public final class ImageProcessing implements Runnable
         PImage front = copy ? base.copy() : base;
         assertFrontBack(base.width,base.height);
 
-        last_img = front;
+        //last_img = front.copy();
 
         front = primaryFilter(front);
         front = inplace_gaussianBlur(front,8,back);
         front = inplace_threshold(front,244);
         back = inplace_sobel(front,back);
-        //last_img = back.copy();
+        last_img = back.copy();
         //image(last_img,0,0);
         //delay(22);
         return back;
